@@ -1,0 +1,2 @@
+package common.controllers
+object Assets extends controllers.AssetsBuilder

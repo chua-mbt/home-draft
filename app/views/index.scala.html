@@ -1,0 +1,29 @@
+@()(user: common.models.User)
+
+@import _root_.common.controllers.{routes => commonRoutes}
+
+<!DOCTYPE html>
+<html lang="en" ng-app="home-draft">
+
+<head>
+    <base href="/view/@user.handle/">
+    <meta charset="utf-8">
+    <title>Home Draft</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+<a href="/logout">Logout</a>
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="@commonRoutes.Assets.at("components/angular/angular.min.js")"></script>
+    <script type="text/javascript" src="@commonRoutes.Assets.at("components/angular-route/angular-route.min.js")"></script>
+    <script type="text/javascript" src="@commonRoutes.Assets.at("javascripts/common-resources.js")"></script>
+    <script type="text/javascript" src="@commonRoutes.Assets.at("javascripts/common-directives.js")"></script>
+    <script type="text/javascript" src="@commonRoutes.Assets.at("javascripts/common-config.js")"></script>
+    <script type="text/javascript" src="@commonRoutes.Assets.at("javascripts/common-controllers.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/app.js")"></script>
+</body>
+
+</html>

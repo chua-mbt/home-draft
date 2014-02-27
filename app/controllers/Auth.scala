@@ -24,7 +24,7 @@ object Auth extends Controller with Secured {
     }
   )
 
-  def login = UserAction { user => implicit request =>
+  def login = VisitorAction { user => implicit request =>
     if(user.isDefined) {
       Redirect(routes.Application.index)
     } else {
@@ -36,7 +36,7 @@ object Auth extends Controller with Secured {
     Results.Redirect(routes.Auth.login).withNewSession
   }
 
-  def authenticate = UserAction(parse.urlFormEncoded) { user => implicit request =>
+  def authenticate = VisitorAction(parse.urlFormEncoded) { user => implicit request =>
     val form = loginForm.bindFromRequest
     form.fold(
       errors => BadRequest(html.login(errors)),

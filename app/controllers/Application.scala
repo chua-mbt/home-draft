@@ -8,10 +8,12 @@ import views._
 
 object Application extends Controller with Secured {
   def index = UserAction { user => implicit request =>
-    if(!user.isDefined){
-      Redirect(routes.Auth.login)
-    }else{
-      Ok(html.index()(user.get))
-    }
+    Redirect(routes.Application.userView(user.handle))
+  }
+
+  def userView(
+    handle: String
+  ) = UserAction { user => implicit request =>
+    Ok(html.index()(user))
   }
 }

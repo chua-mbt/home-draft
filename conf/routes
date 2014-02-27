@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                           controllers.Application.index
+GET     /view/:handle               controllers.Application.userView(handle)
 GET     /login                      controllers.Auth.login
 POST    /login                      controllers.Auth.authenticate
 GET     /logout                     controllers.Auth.logout

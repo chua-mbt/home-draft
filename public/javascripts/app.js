@@ -1,5 +1,13 @@
 angular.module('home-draft', [
-//  'common.resources',
-//  'common.directives',
-  'common.config'
-]).run(function($rootScope, $http) {});
+  'ngRoute',
+  'controllers'
+]).config(['$routeProvider', function($routeProvider) {
+  $routeProvider.
+    when('/drafts', {
+      templateUrl: 'partials/drafts.html',
+      controller: 'DraftsCtrl'
+    }).
+    otherwise({
+      redirectTo: '/drafts'
+    });
+}]);

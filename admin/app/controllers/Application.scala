@@ -7,7 +7,7 @@ import common.controllers.Secured
 import views._
 
 object Application extends Controller with Secured {
-  def index = UserAction { user => implicit request =>
+  def index = VisitorAction { user => implicit request =>
     Ok("temp");
     /*
     if(!user.isDefined){

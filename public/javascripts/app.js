@@ -4,8 +4,12 @@ angular.module('home-draft', [
 ]).config(['$routeProvider', function($routeProvider) {
   $routeProvider.
     when('/drafts', {
-      templateUrl: 'partials/drafts.html',
+      templateUrl: jsRoutes.manager.controllers.Assets.at("partials/drafts.html").url,
       controller: 'DraftsCtrl'
+    }).
+    when('/drafts/:hash', {
+      templateUrl: jsRoutes.manager.controllers.Assets.at("partials/draft.html").url,
+      controller: 'DraftCtrl'
     }).
     otherwise({
       redirectTo: '/drafts'

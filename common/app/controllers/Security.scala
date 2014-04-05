@@ -5,9 +5,9 @@ import play.api.mvc.BodyParsers._
 
 import common.models._
 
-trait Secured { self: Controller =>
+trait Security { self: Controller =>
   def user(implicit request: RequestHeader) =
-    request.session.get("user_id").flatMap(i => Users.findById(i.toInt))
+    request.session.get("user_id").flatMap(i => User.findById(i.toInt))
 
   def VisitorAction(
     f: Option[User] => Request[AnyContent] => SimpleResult
@@ -15,9 +15,7 @@ trait Secured { self: Controller =>
 
   def VisitorAction[A](parser: BodyParser[A])(
     f: Option[User] => Request[A] => SimpleResult
-  ): Action[A] = {
-    Action(parser) { implicit req => f(user)(req) }
-  }
+  ): Action[A] = Action(parser) { implicit req => f(user)(req) }
 
   def UserAction(
     f: User => Request[AnyContent] => SimpleResult
@@ -25,13 +23,11 @@ trait Secured { self: Controller =>
 
   def UserAction[A](parser: BodyParser[A])(
     f: User => Request[A] => SimpleResult
-  ): Action[A] = {
-    Action(parser) { implicit req =>
-      if(!user.isDefined){
-        Redirect("/login")
-      } else {
-        f(user.get)(req)
-      }
+  ): Action[A] = Action(parser) { implicit req =>
+    if(!user.isDefined){
+      Redirect("/login")
+    } else {
+      f(user.get)(req)
     }
   }
 
@@ -41,18 +37,16 @@ trait Secured { self: Controller =>
 
   def AdminAction[A](parser: BodyParser[A])(
     f: User => Request[A] => SimpleResult
-  ): Action[A] = {
-    Action(parser) { implicit req =>
-      if(!user.isDefined){
-        Redirect("/admin/login")
-      } else if(Roles.isUserAdmin(user.get)) {
-        f(user.get)(req)
-      } else {
-        Forbidden(views.html.error(
-          "Error 403: Forbidden",
-          "You do not have the clearance to access this page."
-        ))
-      }
+  ): Action[A] = Action(parser) { implicit req =>
+    if(!user.isDefined){
+      Redirect("/admin/login")
+    } else if(Role.isUserAdmin(user.get)) {
+      f(user.get)(req)
+    } else {
+      Forbidden(views.html.error(
+        "Error 403: Forbidden",
+        "You do not have the clearance to access this page."
+      ))
     }
   }
 }

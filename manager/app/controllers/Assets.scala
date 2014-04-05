@@ -1,0 +1,2 @@
+package manager.controllers
+object Assets extends controllers.AssetsBuilder

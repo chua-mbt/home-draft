@@ -23,7 +23,7 @@ object Global extends GlobalSettings {
     setUpdater = Some(system.scheduler.schedule(0 milliseconds, 24 hour) {
       WS.url(setSrc).get().map {
         response => response.json.as[JsArray].value.map {
-          set => MTGSets.add(MTGSet(
+          set => MTGSet.add(MTGSet(
             (set \ "id").as[String],
             (set \ "name").as[String]
           ))

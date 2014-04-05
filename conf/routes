@@ -10,6 +10,7 @@ POST    /login                      controllers.Auth.authenticate
 GET     /logout                     controllers.Auth.logout
 
 ->      /common                     common.Routes
+->      /manager                    manager.Routes
 #->      /admin                      admin.Routes
 #->      /user                       user.Routes
 

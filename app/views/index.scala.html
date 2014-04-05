@@ -1,10 +1,15 @@
-@()(user: common.models.User)
+@()(user: common.models.User)(implicit request: RequestHeader)
 
 @import _root_.common.controllers.{routes => commonRoutes}
+@import _root_.manager.controllers.{routes => managerRoutes}
+@helper.javascriptRouter("jsRoutes")(
+  commonRoutes.javascript.Assets.at,
+  managerRoutes.javascript.Assets.at,
+  routes.javascript.Assets.at
+)
 
 <!DOCTYPE html>
 <html lang="en" ng-app="home-draft">
-
 <head>
     <base href="/view/@user.handle/">
     <meta charset="utf-8">

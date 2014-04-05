@@ -6,20 +6,20 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 
-import common.controllers.Secured
+import common.controllers.Security
 import common.models._
 import views._
 
-object Auth extends Controller with Secured {
+object Auth extends Controller with Security {
   val loginForm = Form(
     mapping(
       "handle" -> nonEmptyText,
       "password" -> nonEmptyText
     ) {
-      (handle, password) => Users.authenticate(handle, password)
+      (handle, password) => User.authenticate(handle, password)
     } {
       (userOpt:Option[User]) => Some(
-        (userOpt.getOrElse(Users.anonymous).handle, "")
+        (userOpt.getOrElse(User.anonymous).handle, "")
       )
     }
   )

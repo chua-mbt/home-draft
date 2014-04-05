@@ -3,10 +3,10 @@ package admin.controllers
 import play.api._
 import play.api.mvc._
 
-import common.controllers.Secured
+import common.controllers.Security
 import views._
 
-object Application extends Controller with Secured {
+object Application extends Controller with Security {
   def index = VisitorAction { user => implicit request =>
     Ok("temp");
     /*

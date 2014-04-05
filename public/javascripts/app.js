@@ -1,7 +1,7 @@
 angular.module('home-draft', [
   'ngRoute',
   'controllers'
-]).config(['$routeProvider', function($routeProvider) {
+]).config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   $routeProvider.
     when('/drafts', {
       templateUrl: jsRoutes.manager.controllers.Assets.at("partials/drafts.html").url,
@@ -14,4 +14,5 @@ angular.module('home-draft', [
     otherwise({
       redirectTo: '/drafts'
     });
+  $locationProvider.html5Mode(true);
 }]);

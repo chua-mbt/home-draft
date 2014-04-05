@@ -34,7 +34,7 @@ CREATE TABLE dstates (
   dstate_name text NOT NULL UNIQUE
 );;
 
-INSERT INTO dstates VALUES(1, 'preparation');
+INSERT INTO dstates VALUES(1, 'upcoming');
 INSERT INTO dstates VALUES(2, 'drafting');
 INSERT INTO dstates VALUES(3, 'tournament');
 INSERT INTO dstates VALUES(4, 'finished');

@@ -1,14 +1,13 @@
 package manager.controllers
 
 import java.sql.Timestamp
+import org.joda.time.DateTime
 
 import play.api._
 import play.api.mvc._
-
 import play.api.data._
 import play.api.data.Forms._
 import play.api.data.format.Formats._
-
 import play.api.libs.json._
 import play.api.libs.json.Json._
 
@@ -18,24 +17,36 @@ import manager.models._
 object DraftCon extends Controller with Security with API with Pages {
   val draftForm = Form(
     mapping(
-      "start" -> of[Long],
+      "hash" -> optional(text),
+      "start" -> jodaDate(Draft.jodaTSFormat),
+      "set1" -> nonEmptyText,
+      "set2" -> nonEmptyText,
+      "set3" -> nonEmptyText,
       "venue" -> optional(text),
       "food" -> optional(text),
       "fee" -> optional(of[Float]),
-      "set1" -> optional(text),
-      "set2" -> optional(text),
-      "set3" -> optional(text)
-    ){case (start, venue, food, fee, set1, set2, set3) => Draft(
-      "", new Timestamp(start), 1,
-      venue, food, fee, set1, set2, set3
+      "details" -> optional(text)
+    ){case (hash, start, set1, set2, set3, venue, food, fee, details) => Draft(
+      hash.getOrElse(""), new Timestamp(start.getMillis()),
+      set1, set2, set3, 1,
+      venue, food, fee, details
     )}{(draft:Draft) => Some((
-        draft.start.getTime(), draft.venue, draft.food,
-        draft.fee, draft.set1, draft.set2, draft.set3
+      Some(draft.hash), new DateTime(draft.start),
+      draft.set1, draft.set2, draft.set3,
+      draft.venue, draft.food, draft.fee, draft.details
     ))}
   )
 
-  def create = UserAction(parse.json) { user => implicit request =>
-    Respond("results" -> toJson(""))
+  def make = UserAction(parse.json) { user => implicit request =>
+    draftForm.bindFromRequest.fold(
+      { case errors =>
+        play.Logger.debug("TERRIBAD")
+      },
+      { case newDraft =>
+        Draft.add(newDraft, user.handle)
+      }
+    )
+    Respond()
   }
 
   def mod(hash:String) = UserAction(parse.json) { user => implicit request =>

@@ -8,11 +8,12 @@ import views._
 
 object Application extends Controller with Security {
   def index = UserAction { user => implicit request =>
-    Redirect(routes.Application.userView(user.handle))
+    Redirect(routes.Application.userView(user.handle, ""))
   }
 
   def userView(
-    handle: String
+    handle: String,
+    file: String = ""
   ) = UserAction { user => implicit request =>
     Ok(html.index()(user))
   }

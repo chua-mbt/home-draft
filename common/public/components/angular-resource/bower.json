@@ -1,7 +1,7 @@
 {
-  "name": "angular-route",
+  "name": "angular-resource",
   "version": "1.2.17-build.94+sha.c3ec6ea",
-  "main": "./angular-route.js",
+  "main": "./angular-resource.js",
   "dependencies": {
     "angular": "1.2.17-build.94+sha.c3ec6ea"
   }

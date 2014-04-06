@@ -1,5 +1,5 @@
 GET     /drafts              manager.controllers.DraftCon.drafts
-POST    /drafts/new          manager.controllers.DraftCon.create
+POST    /drafts/new          manager.controllers.DraftCon.make
 GET     /draft/:hash         manager.controllers.DraftCon.draft(hash: String)
 PUT     /draft/:hash         manager.controllers.DraftCon.mod(hash: String)
 

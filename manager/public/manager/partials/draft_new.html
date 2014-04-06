@@ -1,0 +1,55 @@
+<section>
+  <header>Schedule a Draft</header>
+  <form id="draft-form" ng-submit="save()">
+    <div>
+      <div>
+        <label for="draft-start">Start</label>
+        <div>
+          <input id="draft-start" type="datetime-local" ng-model="draft.start" required><br>
+        </div>
+      </div>
+      <div>
+        <label for="draft-sets">Sets</label>
+        <div>
+          <select ng-model="draft.set1" ng-options="set.id as set.name for set in mtgsets" required>
+            <option value="">-- select a set --</option>
+          </select><br>
+          <select ng-model="draft.set2" ng-options="set.id as set.name for set in mtgsets" required>
+            <option value="">-- select a set --</option>
+          </select><br>
+          <select ng-model="draft.set3" ng-options="set.id as set.name for set in mtgsets" required>
+            <option value="">-- select a set --</option>
+          </select><br>
+        </div>
+      </div>
+      <div>
+        <label for="draft-venue">Venue</label>
+        <div>
+          <input id="draft-venue" type="text" ng-model="draft.venue"><br>
+        </div>
+      </div>
+      <div>
+        <label for="draft-food">Food</label>
+        <div>
+          <input id="draft-food" type="text" ng-model="draft.food"><br>
+        </div>
+      </div>
+      <div>
+        <label for="draft-fee">Fee</label>
+        <div>
+          <input id="draft-fee" type="number" step="0.01" min="0.00" ng-model="draft.fee"><br>
+        </div>
+      </div>
+      <div>
+        <label for="draft-details">Details</label>
+        <div>
+          <textarea id="draft-details" ng-model="draft.details"></textarea><br>
+        </div>
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="Save">
+      <a href="drafts">Cancel</a>
+    </div>
+  </form>
+</section>

@@ -14,7 +14,7 @@ import play.api.db.slick.DB
 import scala.slick.driver.PostgresDriver.simple._
 
 case class Draft(
-  hash: String,
+  var hash: String,
   start: Timestamp,
   set1: String,
   set2: String,
@@ -49,9 +49,8 @@ object Draft{
   val jodaTSFormat = "yyyy-MM-DD'T'HH:mm"
   lazy val all = TableQuery[DraftTable]
   lazy val allSorted = all.sortBy(_.start.desc)
-  def add(baseDraft: Draft, userHandle: String) = DB.withSession { implicit session =>
-    val newDraft = baseDraft.copy(hash = newHash(userHandle))
-    play.Logger.debug(newDraft.toString)
+  def add(newDraft: Draft, userHandle: String) = DB.withSession { implicit session =>
+    newDraft.hash = newHash(userHandle)
     if(!all.filter(_.hash === newDraft.hash).exists.run){ all += newDraft }
   }
   def paged(params: PageParam) = DB.withSession{ implicit session =>

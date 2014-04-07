@@ -6,7 +6,6 @@ function ($scope, drafts) {
 }]).
 controller('DraftNewCtrl', ['$scope', 'mtgsets', 'drafts',
 function ($scope, mtgsets, drafts) {
-  $scope.draft = { hash: "new" };
   mtgsets.get(function(response){
     $scope.mtgsets = response.results;
   });

@@ -7,5 +7,5 @@ function ($resource) {
 }).
 factory('drafts', ['$resource',
 function ($resource) {
-  return $resource('/manager/drafts/:did', {did:'@hash'});
+  return $resource('/manager/drafts/:hash');
 }]);

@@ -52,9 +52,10 @@ object Draft{
   def add(newDraft: Draft, userHandle: String) = DB.withSession { implicit session =>
     newDraft.hash = newHash(userHandle)
     if(!all.filter(_.hash === newDraft.hash).exists.run){ all += newDraft }
+    newDraft.hash
   }
-  def paged(params: PageParam) = DB.withSession{ implicit session =>
-    allSorted.drop(params.start).take(params.count).list
+  def paged(params: PageParam) = DB.withTransaction { implicit session =>
+    (allSorted.drop(params.start).take(params.count).list, allSorted.list.length)
   }
   def findByHash(hash: String) = DB.withSession { implicit session =>
     all.filter(_.hash === hash).firstOption

@@ -41,20 +41,25 @@ object DraftCon extends Controller with Security with API with Pages {
     draftForm.bindFromRequest.fold(
       { case errors =>
         play.Logger.debug("TERRIBAD")
+        Respond()
       },
       { case newDraft =>
-        Draft.add(newDraft, user.handle)
+        val hash = Draft.add(newDraft, user.handle)
+        Respond("result" -> toJson(hash))
       }
     )
-    Respond()
   }
 
   def mod(hash:String) = UserAction(parse.json) { user => implicit request =>
-    Respond("results" -> toJson(hash))
+    Respond("result" -> toJson(hash))
   }
 
   def drafts = UserAction { user => implicit request => {
-    Respond("results" -> toJson(Draft.paged(pageParams)))
+    val paged = Draft.paged(pageParams)
+    Respond(
+      "results" -> toJson(paged._1),
+      "total" -> toJson(paged._2)
+    )
   }}
 
   def draft(hash:String) = UserAction { user => implicit request => {

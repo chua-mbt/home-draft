@@ -1,1 +1,27 @@
 <a href="drafts/new">New</a>
+<select
+  ng-options="state.name as state.name for state in dstates"
+  ng-change="fetch()"
+  ng-model="state"
+  required>
+</select>
+<table>
+  <thead>
+    <tr>
+      <th>Starts</th>
+      <th>Sets</th>
+      <th>Venue</th>
+      <th>Participants</th>
+      <th>State</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="draft in drafts">
+      <td>{{ draft.start | date:'medium' }}</td>
+      <td>{{ draft.set1 }}-{{ draft.set2 }}-{{ draft.set3 }}</td>
+      <td>{{ draft.venue }}</td>
+      <td>{{ draft.participants }}</td>
+      <td>{{ draft.state }}</td>
+    </tr>
+  </tbody>
+</table>

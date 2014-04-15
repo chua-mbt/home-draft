@@ -8,4 +8,8 @@ function ($resource) {
 factory('drafts', ['$resource',
 function ($resource) {
   return $resource('/manager/drafts/:hash');
+}]).
+factory('draft_states', ['$resource',
+function ($resource) {
+  return $resource('/manager/draft-states/:name');
 }]);

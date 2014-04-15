@@ -8,8 +8,8 @@ import play.api.libs.json.Json._
 
 import common.models._
 
-object MTGSetCon extends Controller with API {
+object MTGSetCon extends Controller {
   def mtgsets = Action { implicit request => {
-    Respond("results" -> toJson(MTGSet.list))
+    Ok(toJson(MTGSet.list))
   }}
 }

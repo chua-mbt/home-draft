@@ -18,12 +18,6 @@ CREATE TABLE users (
   user_last_login timestamp DEFAULT NOW()
 );;
 
-INSERT INTO users VALUES(
-  DEFAULT, 'admin', 'admin@admin.blah',
-  crypt('yesthisistheadminspassword!', gen_salt('bf')),
-  (SELECT role_id FROM roles WHERE role_name = 'admin' LIMIT 1)
-);;
-
 CREATE TABLE mtgsets (
   mtgset_id text PRIMARY KEY,
   mtgset_name text NOT NULL
@@ -69,26 +63,13 @@ CREATE TABLE matches (
 CREATE TABLE participants (
   draft_hash text REFERENCES drafts,
   user_id int REFERENCES users,
-  part_seat int,
-  part_joined timestamp NOT NULL,
+  part_joined timestamp NOT NULL DEFAULT NOW(),
   part_paid boolean NOT NULL DEFAULT false,
+  part_seat int,
   PRIMARY KEY(draft_hash, user_id)
 );;
 
-CREATE VIEW participation AS
-  SELECT
-    drafts.draft_hash,
-    drafts.draft_start,
-    COALESCE(count(participants.user_id), 0) AS participants
-  FROM drafts LEFT JOIN participants
-    ON (drafts.draft_hash = participants.draft_hash)
-  GROUP BY
-    drafts.draft_hash,
-    drafts.draft_start;;
-
 # --- !Downs
-DROP VIEW IF EXISTS participation;;
-
 DROP TABLE IF EXISTS participants;;
 
 DROP TABLE IF EXISTS matches;;

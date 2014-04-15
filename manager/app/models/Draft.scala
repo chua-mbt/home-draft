@@ -2,6 +2,7 @@ package manager.models
 
 import common.models._
 
+import java.util.Date
 import java.sql.Timestamp
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -46,21 +47,42 @@ class DraftTable(tag: Tag) extends Table[Draft](tag, "drafts") {
 }
 
 object Draft{
-  val jodaTSFormat = "yyyy-MM-DD'T'HH:mm"
+  val tsFormat = "yyyy-MM-dd'T'HH:mm"
   lazy val all = TableQuery[DraftTable]
   lazy val allSorted = all.sortBy(_.start.desc)
-  def add(newDraft: Draft, userHandle: String) = DB.withSession { implicit session =>
-    newDraft.hash = newHash(userHandle)
+  def add(newDraft: Draft, user: User) = DB.withTransaction { implicit session =>
+    newDraft.hash = newHash(user.handle)
     if(!all.filter(_.hash === newDraft.hash).exists.run){ all += newDraft }
+    Participant.all += Participant(
+      newDraft.hash, user.id,
+      new Timestamp((new Date()).getTime()), false
+    )
     newDraft.hash
   }
-  def paged(params: PageParam) = DB.withTransaction { implicit session =>
-    (allSorted.drop(params.start).take(params.count).list, allSorted.list.length)
+  def paged(
+    params: PageParam, user: User, state: Option[String] = None
+  ) = DB.withTransaction { implicit session =>
+    var userDrafts = for {
+      participant <- Participant.all if participant.userId === user.id
+      draft <- Draft.all if draft.hash === participant.draftHash
+    } yield draft
+    state map {
+      name => {
+        userDrafts = for{
+          dstate <- DraftState.all if dstate.name === name
+          draft <- userDrafts if draft.state === dstate.number
+        } yield draft
+      }
+    }
+    userDrafts.sortBy(_.start.desc).drop(params.start).take(params.count).list
   }
-  def findByHash(hash: String) = DB.withSession { implicit session =>
-    all.filter(_.hash === hash).firstOption
+  def findByHash(hash: String, user: User) = DB.withSession { implicit session =>
+    (for {
+      participant <- Participant.all if participant.userId === user.id
+      draft <- Draft.all if (draft.hash === participant.draftHash && draft.hash === hash)
+    } yield draft).firstOption
   }
-  def newHash(seed:String) = {
+  def newHash(seed: String) = {
     new sun.misc.BASE64Encoder().encode(
       MessageDigest.getInstance("SHA-1").digest(
         (seed + System.currentTimeMillis.toString).getBytes
@@ -78,9 +100,10 @@ object Draft{
         "set3" -> toJson(o.set3),
         "venue" -> toJson(o.venue),
         "food" -> toJson(o.food),
-        "state" -> toJson(o.state),
+        "state" -> toJson(DraftState.findByNumber(o.state).get.name),
         "fee" -> toJson(o.fee),
-        "details" -> toJson(o.details)
+        "details" -> toJson(o.details),
+        "participants" -> toJson(Participant.count(o.hash))
       ))
     }
   }

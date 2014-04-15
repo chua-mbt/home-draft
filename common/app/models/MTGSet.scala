@@ -16,8 +16,10 @@ class MTGSetTable(tag: Tag) extends Table[MTGSet](tag, "mtgsets") {
 }
 
 object MTGSet {
+  lazy val src = "https://api.deckbrew.com/mtg/sets"
   lazy val all = TableQuery[MTGSetTable]
   lazy val allSorted = all.sortBy(_.id.asc)
+
   def list = DB.withSession{ implicit session => allSorted.list }
   def add(newSet: MTGSet) = DB.withTransaction { implicit session =>
     if(!all.filter(_.id === newSet.id).exists.run){ all += newSet }

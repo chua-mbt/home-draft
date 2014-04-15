@@ -4,7 +4,9 @@
 
 # Home page
 GET     /                           controllers.Application.index
-GET     /view/:handle               controllers.Application.userView(handle)
+GET     /view/:handle               controllers.Application.userView(handle, file="")
+GET     /view/:handle/*file         controllers.Application.userView(handle, file)
+
 GET     /login                      controllers.Auth.login
 POST    /login                      controllers.Auth.authenticate
 GET     /logout                     controllers.Auth.logout

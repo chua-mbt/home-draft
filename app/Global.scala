@@ -16,12 +16,11 @@ import scala.concurrent.Future
 import common.models._
 
 object Global extends GlobalSettings {
-  lazy val setSrc = "https://api.deckbrew.com/mtg/sets"
   var setUpdater: Option[Cancellable] = None
 
   override def onStart(app: play.api.Application){
     setUpdater = Some(system.scheduler.schedule(0 milliseconds, 24 hour) {
-      WS.url(setSrc).get().map {
+      WS.url(MTGSet.src).get().map {
         response => response.json.as[JsArray].value.map {
           set => MTGSet.add(MTGSet(
             (set \ "id").as[String],
@@ -29,7 +28,7 @@ object Global extends GlobalSettings {
           ))
         }
       }
-    })
+    })//MTGSet.update
   }
 
   override def onStop(app: play.api.Application){

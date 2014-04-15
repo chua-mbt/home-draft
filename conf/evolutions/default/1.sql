@@ -18,12 +18,6 @@ CREATE TABLE users (
   user_last_login timestamp DEFAULT NOW()
 );;
 
-INSERT INTO users VALUES(
-  DEFAULT, 'admin', 'admin@admin.blah',
-  crypt('yesthisistheadminspassword!', gen_salt('bf')),
-  (SELECT role_id FROM roles WHERE role_name = 'admin' LIMIT 1)
-);;
-
 CREATE TABLE mtgsets (
   mtgset_id text PRIMARY KEY,
   mtgset_name text NOT NULL
@@ -42,13 +36,14 @@ INSERT INTO dstates VALUES(4, 'finished');
 CREATE TABLE drafts (
   draft_hash text PRIMARY KEY,
   draft_start timestamp NOT NULL,
+  draft_set1 text NOT NULL REFERENCES mtgsets,
+  draft_set2 text NOT NULL REFERENCES mtgsets,
+  draft_set3 text NOT NULL REFERENCES mtgsets,
   draft_state int NOT NULL REFERENCES dstates,
   draft_venue text,
   draft_food text,
   draft_fee numeric(10, 2),
-  draft_set1 text REFERENCES mtgsets,
-  draft_set2 text REFERENCES mtgsets,
-  draft_set3 text REFERENCES mtgsets
+  draft_details text
 );;
 
 CREATE TABLE invitations (
@@ -59,8 +54,8 @@ CREATE TABLE invitations (
 
 CREATE TABLE matches (
   draft_hash text REFERENCES drafts ON DELETE CASCADE,
-  user1 int REFERENCES users NOT NULL,
-  user2 int REFERENCES users NOT NULL,
+  user1 int NOT NULL REFERENCES users,
+  user2 int NOT NULL REFERENCES users,
   match_round int NOT NULL,
   PRIMARY KEY(draft_hash, user1, user2, match_round)
 );;
@@ -68,26 +63,13 @@ CREATE TABLE matches (
 CREATE TABLE participants (
   draft_hash text REFERENCES drafts,
   user_id int REFERENCES users,
-  part_seat int,
-  part_joined timestamp NOT NULL,
+  part_joined timestamp NOT NULL DEFAULT NOW(),
   part_paid boolean NOT NULL DEFAULT false,
+  part_seat int,
   PRIMARY KEY(draft_hash, user_id)
 );;
 
-CREATE VIEW participation AS
-  SELECT
-    drafts.draft_hash,
-    drafts.draft_start,
-    COALESCE(count(participants.user_id), 0) AS participants
-  FROM drafts LEFT JOIN participants
-    ON (drafts.draft_hash = participants.draft_hash)
-  GROUP BY
-    drafts.draft_hash,
-    drafts.draft_start;;
-
 # --- !Downs
-DROP VIEW IF EXISTS participation;;
-
 DROP TABLE IF EXISTS participants;;
 
 DROP TABLE IF EXISTS matches;;

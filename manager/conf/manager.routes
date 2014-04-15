@@ -1,7 +1,9 @@
 GET     /drafts              manager.controllers.DraftCon.drafts
-POST    /drafts/new          manager.controllers.DraftCon.create
+POST    /drafts              manager.controllers.DraftCon.make
 GET     /draft/:hash         manager.controllers.DraftCon.draft(hash: String)
 PUT     /draft/:hash         manager.controllers.DraftCon.mod(hash: String)
+GET     /draft-states        manager.controllers.DraftCon.states
+GET     /draft-states/:name  manager.controllers.DraftCon.draftsByState(name)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file        manager.controllers.Assets.at(path="/public/manager", file)

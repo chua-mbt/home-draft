@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import play.Project._
+import net.litola.SassPlugin
 
 object ApplicationBuild extends Build {
 
@@ -17,6 +18,10 @@ object ApplicationBuild extends Build {
 
     lazy val common = play.Project(
       appName + "-common", appVersion, appDependencies, path = file("common")
+    ).settings(
+      SassPlugin.sassSettings:_*
+    ).settings(
+      SassPlugin.sassOptions := Seq("--compass")
     )
 
     lazy val admin = play.Project(

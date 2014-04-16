@@ -1,5 +1,5 @@
 angular.module(
-  'controllers', []
+  'home-draft.controllers', []
 ).
 controller('DraftsCtrl', ['$scope', 'drafts', 'draft_states',
 function ($scope, drafts, draft_states) {
@@ -22,15 +22,10 @@ function ($scope, drafts, draft_states) {
   });
   $scope.fetch();
 }]).
-controller('DraftNewCtrl', ['$scope', '$location', 'mtgsets', 'drafts',
-function ($scope, $location, mtgsets, drafts) {
-  mtgsets.query(function(response){
-    $scope.mtgsets = response;
-  });
-  $scope.save = function(){
-    drafts.save($scope.draft, function(){
-      $location.path('/drafts');
-    }, function(){ console.log("Something terrible happened..."); });
+controller('DraftNewCtrl', ['$scope', '$location',
+function ($scope, $location) {
+  $scope.onSave = function(){
+    $location.path('/drafts');
   }
 }]).
 controller('DraftViewCtrl', ['$scope',

@@ -1,5 +1,5 @@
 angular.module(
-  'services', ['ngResource']
+  'home-draft.services', ['ngResource']
 ).
 factory('mtgsets',
 function ($resource) {

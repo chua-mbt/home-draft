@@ -1,20 +1,21 @@
 angular.module('home-draft', [
   'ngRoute',
-  'services',
-  'controllers'
+  'home-draft.services',
+  'home-draft.directives',
+  'home-draft.controllers'
 ]).config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
   $routeProvider.
     when('/drafts', {
-      templateUrl: jsRoutes.manager.controllers.Assets.at("partials/drafts.html").url,
+      templateUrl: mgr_partial("drafts"),
       controller: 'DraftsCtrl'
     }).
     when('/drafts/new', {
-      templateUrl: jsRoutes.manager.controllers.Assets.at("partials/draft_new.html").url,
+      templateUrl: mgr_partial("draft_new"),
       controller: 'DraftNewCtrl'
     }).
     when('/drafts/:hash', {
-      templateUrl: jsRoutes.manager.controllers.Assets.at("partials/draft_view.html").url,
-      controller: 'DraftViewCtrl'
+      templateUrl: mgr_partial("draft_mgr"),
+      controller: 'DraftMgrCtrl'
     }).
     otherwise({
       redirectTo: '/drafts'

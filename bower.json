@@ -17,7 +17,8 @@
   "dependencies": {
     "angular": "1.2.13",
     "angular-route": "~1.2.13",
-    "angular-resource": "~1.2.13"
+    "angular-resource": "~1.2.13",
+    "jquery": "1.9.1"
   },
   "resolutions": {
     "angular": "1.2.13"

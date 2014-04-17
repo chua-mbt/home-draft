@@ -1,9 +1,12 @@
-GET     /drafts              manager.controllers.DraftCon.drafts
-POST    /drafts              manager.controllers.DraftCon.make
-GET     /draft/:hash         manager.controllers.DraftCon.draft(hash: String)
-PUT     /draft/:hash         manager.controllers.DraftCon.mod(hash: String)
-GET     /draft-states        manager.controllers.DraftCon.states
-GET     /draft-states/:name  manager.controllers.DraftCon.draftsByState(name)
+GET     /drafts                             manager.controllers.DraftCon.drafts
+POST    /drafts                             manager.controllers.DraftCon.make
+GET     /drafts/:hash                       manager.controllers.DraftCon.draft(hash: String)
+PUT     /drafts/:hash                       manager.controllers.DraftCon.edit(hash: String)
+GET     /drafts/:hash/participants          manager.controllers.DraftCon.participants(hash: String)
+POST    /drafts/:hash/participants          manager.controllers.DraftCon.addParticipant(hash: String)
+DELETE  /drafts/:hash/participants/:handle  manager.controllers.DraftCon.remParticipant(hash: String, handle: String)
+GET     /draft-states                       manager.controllers.DraftCon.states
+GET     /draft-states/:name                 manager.controllers.DraftCon.draftsByState(name)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file        manager.controllers.Assets.at(path="/public/manager", file)
+GET     /assets/*file                       manager.controllers.Assets.at(path="/public/manager", file)

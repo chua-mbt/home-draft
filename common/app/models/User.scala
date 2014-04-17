@@ -22,13 +22,17 @@ object User {
   lazy val anonymous = User(-1, "", "", "", -1)
   lazy val all = TableQuery[UserTable]
 
-  implicit val getUserResult = GetResult(r => User(
-    r.<<, r.<<, r.<<, r.<<, r.<<
-  ))
-
   def findById(id: Long) = DB.withSession { implicit session =>
     all.filter(_.id === id).firstOption
   }
+  def findByHandle(handle: String) = DB.withSession { implicit session =>
+    all.filter(_.handle === handle).firstOption
+  }
+
+  def add(newUser: User) = DB.withSession { implicit session =>
+    all += newUser
+  }
+
   def authenticate(
     handle: String,
     password: String
@@ -39,7 +43,8 @@ object User {
         AND user_password = CRYPT(?, user_password)
     """).firstOption(handle, password)
   }
-  def add(newUser: User) = DB.withSession { implicit session =>
-    all += newUser
-  }
+
+  implicit val getUserResult = GetResult(r => User(
+    r.<<, r.<<, r.<<, r.<<, r.<<
+  ))
 }

@@ -2,7 +2,7 @@ package manager.models
 
 import common.models._
 
-import java.util.Date
+import java.text.SimpleDateFormat
 import java.sql.Timestamp
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -48,17 +48,16 @@ class DraftTable(tag: Tag) extends Table[Draft](tag, "drafts") {
 
 object Draft{
   val tsFormat = "yyyy-MM-dd'T'HH:mm"
+  def newHash(seed: String) = {
+    new sun.misc.BASE64Encoder().encode(
+      MessageDigest.getInstance("SHA-1").digest(
+        (seed + System.currentTimeMillis.toString).getBytes
+      )
+    ) replace('+', '-') replace('/','_') replace("=", "")
+  }
+
   lazy val all = TableQuery[DraftTable]
   lazy val allSorted = all.sortBy(_.start.desc)
-  def add(newDraft: Draft, user: User) = DB.withTransaction { implicit session =>
-    newDraft.hash = newHash(user.handle)
-    if(!all.filter(_.hash === newDraft.hash).exists.run){ all += newDraft }
-    Participant.all += Participant(
-      newDraft.hash, user.id,
-      new Timestamp((new Date()).getTime()), false
-    )
-    newDraft.hash
-  }
   def paged(
     params: PageParam, user: User, state: Option[String] = None
   ) = DB.withTransaction { implicit session =>
@@ -79,22 +78,31 @@ object Draft{
   def findByHash(hash: String, user: User) = DB.withSession { implicit session =>
     (for {
       participant <- Participant.all if participant.userId === user.id
-      draft <- Draft.all if (draft.hash === participant.draftHash && draft.hash === hash)
+      draft <- Draft.all if (
+        draft.hash === participant.draftHash && draft.hash === hash
+      )
     } yield draft).firstOption
   }
-  def newHash(seed: String) = {
-    new sun.misc.BASE64Encoder().encode(
-      MessageDigest.getInstance("SHA-1").digest(
-        (seed + System.currentTimeMillis.toString).getBytes
+
+  def add(newDraft: Draft, user: User) = DB.withTransaction { implicit session =>
+    newDraft.hash = newHash(user.handle)
+    if(!all.filter(_.hash === newDraft.hash).exists.run){
+      all += newDraft
+      Participant.all += Participant(
+        newDraft.hash, user.id
       )
-    ) replace('+', '-') replace('/','_') replace("=", "")
+    }
+    newDraft.hash
+  }
+  def edit(draft: Draft) = DB.withTransaction { implicit session =>
+    all.filter(_.hash === draft.hash).update(draft)
   }
 
   implicit object ReadWrite extends Writes[Draft] {
     def writes(o: Draft) = {
       toJson(Map(
         "hash" -> toJson(o.hash),
-        "start" -> toJson(o.start),
+        "start" -> toJson(new SimpleDateFormat(tsFormat).format(o.start)),
         "set1" -> toJson(o.set1),
         "set2" -> toJson(o.set2),
         "set3" -> toJson(o.set3),

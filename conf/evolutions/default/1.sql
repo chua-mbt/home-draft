@@ -14,8 +14,7 @@ CREATE TABLE users (
   user_handle text NOT NULL UNIQUE,
   user_email text NOT NULL UNIQUE,
   user_password text NOT NULL,
-  user_role int NOT NULL REFERENCES roles,
-  user_last_login timestamp DEFAULT NOW()
+  user_role int NOT NULL REFERENCES roles
 );;
 
 CREATE TABLE mtgsets (
@@ -32,6 +31,7 @@ INSERT INTO dstates VALUES(1, 'upcoming');
 INSERT INTO dstates VALUES(2, 'drafting');
 INSERT INTO dstates VALUES(3, 'tournament');
 INSERT INTO dstates VALUES(4, 'finished');
+INSERT INTO dstates VALUES(5, 'aborted');
 
 CREATE TABLE drafts (
   draft_hash text PRIMARY KEY,

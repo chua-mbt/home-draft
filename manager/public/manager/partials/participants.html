@@ -1,0 +1,21 @@
+<input
+    type="text"
+    ng-model="toAdd"
+    ng-keyup="toAddChanged($event)"
+    placeholder="User Handle"/>
+<a ng-click="add(toAdd)">Add</a>
+<table>
+  <thead>
+    <tr>
+      <th>Handle</th>
+      <th>Paid</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="participant in participants">
+      <td>{{ participant.user }}</td>
+      <td>{{ participant.paid }}</td>
+      <td><a ng-click="remove(participant.user)">Remove</a></td>
+    </tr>
+  </tbody>
+</table>

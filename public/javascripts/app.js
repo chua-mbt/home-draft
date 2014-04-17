@@ -1,5 +1,6 @@
 angular.module('home-draft', [
   'ngRoute',
+  'home-draft.constants',
   'home-draft.services',
   'home-draft.directives',
   'home-draft.controllers'

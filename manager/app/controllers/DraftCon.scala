@@ -13,6 +13,7 @@ import play.api.libs.json.Json._
 
 import common.controllers._
 import manager.models._
+import common.models._
 
 object DraftCon extends Controller with Security with Pages {
   val draftForm = Form(
@@ -42,13 +43,24 @@ object DraftCon extends Controller with Security with Pages {
       errors => BadRequest(errors.toString),
       newDraft => {
         val hash = Draft.add(newDraft, user)
-        Ok(toJson(hash))
+        Ok(toJson(Map("hash" -> toJson(hash))))
       }
     )
   }
 
-  def mod(hash:String) = UserAction(parse.json) { user => implicit request =>
-    Ok(toJson(hash))
+  def edit(hash:String) = UserAction(parse.json) { user => implicit request =>
+    draftForm.bindFromRequest.fold(
+      errors => BadRequest(errors.toString),
+      draft => {
+        assert(hash == draft.hash)
+        if(Draft.findByHash(draft.hash, user).isDefined) {
+          Draft.edit(draft)
+          Ok(toJson(Map("hash" -> toJson(hash))))
+        } else {
+          NotFound
+        }
+      }
+    )
   }
 
   def drafts = UserAction { user => implicit request =>
@@ -59,11 +71,44 @@ object DraftCon extends Controller with Security with Pages {
     Ok(toJson(Draft.findByHash(hash, user)))
   }
 
+  def draftsByState(name: String) = UserAction { user => implicit request =>
+    Ok(toJson(Draft.paged(pageParams, user, Some(name))))
+  }
+
+  def participants(hash: String) = UserAction { user => implicit request =>
+    if(Draft.findByHash(hash, user).isDefined) {
+      Ok(toJson(Participant.forDraft(hash)))
+    } else {
+      NotFound
+    }
+  }
+
+  def addParticipant(
+    hash: String
+  ) = UserAction(parse.json) { user => implicit request =>
+    val participant = User.findByHandle((request.body \ "handle").as[String])
+    if(Draft.findByHash(hash, user).isDefined && participant.isDefined) {
+      Ok(toJson(Participant.add(Participant(
+        hash, participant.get.id
+      ))))
+    } else {
+      NotFound
+    }
+  }
+
+  def remParticipant(
+    hash: String, handle: String
+  ) = UserAction { user => implicit request =>
+    val participant = User.findByHandle(handle)
+    if(Draft.findByHash(hash, user).isDefined && participant.isDefined) {
+      Ok(toJson(Participant.remove(hash, participant.get.id)))
+    } else {
+      NotFound
+    }
+  }
+
   def states = UserAction { user => implicit request =>
     Ok(toJson(DraftState.list))
   }
 
-  def draftsByState(name: String) = UserAction { user => implicit request =>
-    Ok(toJson(Draft.paged(pageParams, user, Some(name))))
-  }
 }

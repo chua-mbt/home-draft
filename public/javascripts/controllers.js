@@ -22,12 +22,25 @@ function ($scope, drafts, draft_states) {
   });
   $scope.fetch();
 }]).
-controller('DraftNewCtrl', ['$scope', '$location',
-function ($scope, $location) {
-  $scope.onSave = function(){
-    $location.path('/drafts');
+controller('DraftNewCtrl', ['$scope', '$location', 'drafts',
+function ($scope, $location, drafts) {
+  $scope.save = function(draft){
+    drafts.save(
+      null, draft, function(response){
+        $location.path('/drafts/'+response.hash);
+      },
+      function(){ alert("Something terrible happened..."); }
+    );
   }
 }]).
-controller('DraftViewCtrl', ['$scope',
-function ($scope) {
+controller('DraftMgrCtrl', ['$scope', '$routeParams', 'drafts',
+function ($scope, $routeParams, drafts) {
+  $scope.save = function(draft){
+    drafts.edit(
+      { hash: $routeParams.hash }, draft, function(){
+        alert("Saved");
+      },
+      function(){ alert("Something terrible happened..."); }
+    );
+  }
 }]);

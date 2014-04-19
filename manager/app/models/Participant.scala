@@ -37,7 +37,10 @@ class ParticipantTable(tag: Tag) extends Table[Participant](tag, "participants")
 
 object Participant {
   lazy val all = TableQuery[ParticipantTable]
-  def forDraft(hash: String) = DB.withTransaction { implicit session =>
+  def forDraft(hash: String, user:User) = DB.withTransaction { implicit session =>
+    if(!Draft.findByHash(hash, user).isDefined) {
+      throw DraftNotFound()
+    }
     (for {
       participant <- Participant.all
       draft <- Draft.all if (
@@ -49,20 +52,41 @@ object Participant {
     all.filter(_.draftHash === hash).list.length
   }
 
-  def add(newParticipant: Participant) = DB.withTransaction { implicit session =>
-    if(!all
+  def add(
+    hash: String, handle: String, user: User
+  ) = DB.withTransaction { implicit session =>
+    val toAdd = User.findByHandle(handle)
+    if(!toAdd.isDefined) {
+      throw UserNotFound()
+    } else if(!Draft.findByHash(hash, user).isDefined) {
+      throw DraftNotFound()
+    } else if (count(hash) >= 8){
+      throw DraftFull()
+    }
+    val newParticipant = Participant(hash, toAdd.get.id)
+    if(all
         .filter(_.draftHash === newParticipant.draftHash)
         .filter(_.userId === newParticipant.userId)
-        .exists.run &&
-      count(newParticipant.draftHash) < 8){
-      all += newParticipant
+        .exists.run){
+      throw UserAlreadyJoined()
     }
+    all += newParticipant
     newParticipant
   }
-  def remove(hash: String, userId: Long) = DB.withSession { implicit session =>
+  def remove(
+    hash: String, handle: String, user: User
+  ) = DB.withTransaction { implicit session =>
+    val toRemove = User.findByHandle(handle)
+    if(!toRemove.isDefined) {
+      throw UserNotFound()
+    } else if(!Draft.findByHash(hash, user).isDefined) {
+      throw DraftNotFound()
+    } else if (count(hash) <= 1){
+      throw DraftMinSize()
+    }
     (all
       .filter(_.draftHash === hash)
-      .filter(_.userId === userId)
+      .filter(_.userId === toRemove.get.id)
       .delete)
   }
 

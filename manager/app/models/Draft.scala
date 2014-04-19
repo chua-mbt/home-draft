@@ -94,7 +94,10 @@ object Draft{
     }
     newDraft.hash
   }
-  def edit(draft: Draft) = DB.withTransaction { implicit session =>
+  def edit(draft: Draft, user: User) = DB.withTransaction { implicit session =>
+    if(!Draft.findByHash(draft.hash, user).isDefined) {
+      throw DraftNotFound()
+    }
     all.filter(_.hash === draft.hash).update(draft)
   }
 

@@ -25,7 +25,9 @@ directive('participants', function(){
     restrict: "E",
     templateUrl: mgr_partial("participants"),
     scope: { draft: "=", participants: "=" },
-    controller: function($scope, $routeParams, participants, enter_key) {
+    controller: function(
+      $scope, $location, $routeParams, app_user, participants, enter_key
+    ) {
       participants.query({ hash: $routeParams.hash }, function(response){
         $scope.participants = response;
       });
@@ -53,6 +55,9 @@ directive('participants', function(){
               return participant.user != handle;
             }
           );
+          if(handle == app_user.handle){
+            $location.path('/drafts');
+          }
         });
       }
     }

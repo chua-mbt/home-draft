@@ -52,12 +52,13 @@ object DraftCon extends Controller with Security with Pages {
     draftForm.bindFromRequest.fold(
       errors => BadRequest(errors.toString),
       draft => {
-        assert(hash == draft.hash)
-        if(Draft.findByHash(draft.hash, user).isDefined) {
-          Draft.edit(draft)
+        try {
+          assert(hash == draft.hash)
+          Draft.edit(draft, user)
           Ok(toJson(Map("hash" -> toJson(hash))))
-        } else {
-          NotFound
+        } catch {
+          case e:DraftNotFound => NotFound
+          case e:AssertionError => BadRequest
         }
       }
     )
@@ -76,34 +77,40 @@ object DraftCon extends Controller with Security with Pages {
   }
 
   def participants(hash: String) = UserAction { user => implicit request =>
-    if(Draft.findByHash(hash, user).isDefined) {
-      Ok(toJson(Participant.forDraft(hash)))
-    } else {
-      NotFound
+    try {
+      Ok(toJson(Participant.forDraft(hash, user)))
+    } catch {
+      case e:DraftNotFound => NotFound
     }
   }
 
   def addParticipant(
     hash: String
   ) = UserAction(parse.json) { user => implicit request =>
-    val participant = User.findByHandle((request.body \ "handle").as[String])
-    if(Draft.findByHash(hash, user).isDefined && participant.isDefined) {
-      Ok(toJson(Participant.add(Participant(
-        hash, participant.get.id
-      ))))
-    } else {
-      NotFound
+    val handle = (request.body \ "handle").as[String]
+    try {
+      Ok(toJson(Participant.add(
+        hash, handle, user
+      )))
+    } catch {
+      case e:UserNotFound => NotFound
+      case e:UserAlreadyJoined => BadRequest
+      case e:DraftNotFound => NotFound
+      case e:DraftFull => BadRequest
     }
   }
 
   def remParticipant(
     hash: String, handle: String
   ) = UserAction { user => implicit request =>
-    val participant = User.findByHandle(handle)
-    if(Draft.findByHash(hash, user).isDefined && participant.isDefined) {
-      Ok(toJson(Participant.remove(hash, participant.get.id)))
-    } else {
-      NotFound
+    try {
+      Ok(toJson(Participant.remove(
+        hash, handle, user
+      )))
+    } catch {
+      case e:UserNotFound => NotFound
+      case e:DraftNotFound => NotFound
+      case e:DraftMinSize => BadRequest
     }
   }
 

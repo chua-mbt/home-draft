@@ -28,7 +28,17 @@
     <script type="text/javascript" src="@commonRoutes.Assets.at("components/angular/angular.min.js")"></script>
     <script type="text/javascript" src="@commonRoutes.Assets.at("components/angular-route/angular-route.min.js")"></script>
     <script type="text/javascript" src="@commonRoutes.Assets.at("components/angular-resource/angular-resource.min.js")"></script>
+    <script>
+      function mgr_partial(partial){
+        return jsRoutes.manager.controllers.Assets.at("partials/"+partial+".html").url;
+      }
+      angular.module("home-draft.constants.play", []).constant(
+        'app_user', {handle: '@user.handle'}
+      );
+    </script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/constants.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/services.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/directives.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/controllers.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/app.js")"></script>
 </body>

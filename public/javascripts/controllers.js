@@ -1,5 +1,5 @@
 angular.module(
-  'controllers', []
+  'home-draft.controllers', []
 ).
 controller('DraftsCtrl', ['$scope', 'drafts', 'draft_states',
 function ($scope, drafts, draft_states) {
@@ -22,17 +22,43 @@ function ($scope, drafts, draft_states) {
   });
   $scope.fetch();
 }]).
-controller('DraftNewCtrl', ['$scope', '$location', 'mtgsets', 'drafts',
-function ($scope, $location, mtgsets, drafts) {
-  mtgsets.query(function(response){
-    $scope.mtgsets = response;
-  });
-  $scope.save = function(){
-    drafts.save($scope.draft, function(){
-      $location.path('/drafts');
-    }, function(){ console.log("Something terrible happened..."); });
+controller('DraftNewCtrl', ['$scope', '$location', 'drafts',
+function ($scope, $location, drafts) {
+  $scope.save = function(draft){
+    drafts.save(
+      null, $scope.draft, function(response){
+        $location.path('/drafts/'+response.hash);
+      },
+      function(){ alert("Something terrible happened..."); }
+    );
   }
 }]).
-controller('DraftViewCtrl', ['$scope',
-function ($scope) {
+controller('DraftMgrCtrl', [
+  '$scope', '$routeParams', 'drafts', 'draft_state', 'participants',
+function ($scope, $routeParams, drafts, draft_state, participants) {
+  drafts.get({ hash: $routeParams.hash }, function(response){
+    $scope.draft = response;
+  });
+  $scope.changeState = function(newState, success){
+    draft_state.edit(
+      { hash: $routeParams.hash, transition: newState }, {}, function(response){
+        $scope.draft.state = response.name
+        if(success) { success(); }
+      }
+    );
+  }
+  $scope.begin = function(){ $scope.changeState("next", function(){
+    participants.query({ hash: $routeParams.hash }, function(response){
+      $scope.participants = response;
+    });
+  })}
+  $scope.abort = function(){ $scope.changeState("abort") }
+  $scope.save = function(){
+    drafts.edit(
+      { hash: $routeParams.hash }, $scope.draft, function(){
+        alert("Saved");
+      },
+      function(){ alert("Something terrible happened..."); }
+    );
+  }
 }]);

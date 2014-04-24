@@ -1,4 +1,4 @@
-package manager.controllers
+package manager.controllers.draft
 
 import java.sql.Timestamp
 import java.util.Date
@@ -13,8 +13,9 @@ import play.api.libs.json.Json._
 
 import common.controllers._
 import manager.models._
+import common.models._
 
-object DraftCon extends Controller with Security with Pages {
+object Details extends Controller with Security {
   val draftForm = Form(
     mapping(
       "hash" -> optional(text),
@@ -28,7 +29,8 @@ object DraftCon extends Controller with Security with Pages {
       "details" -> optional(text)
     ){case (hash, start, set1, set2, set3, venue, food, fee, details) => Draft(
       hash.getOrElse(""), new Timestamp(start.getTime),
-      set1, set2, set3, 1,
+      set1, set2, set3,
+      DraftState.findByName("upcoming").number,
       venue, food, fee, details
     )}{(draft:Draft) => Some((
       Some(draft.hash), new Date(draft.start.getTime),
@@ -42,28 +44,28 @@ object DraftCon extends Controller with Security with Pages {
       errors => BadRequest(errors.toString),
       newDraft => {
         val hash = Draft.add(newDraft, user)
-        Ok(toJson(hash))
+        Ok(toJson(Map("hash" -> toJson(hash))))
       }
     )
   }
 
-  def mod(hash:String) = UserAction(parse.json) { user => implicit request =>
-    Ok(toJson(hash))
-  }
-
-  def drafts = UserAction { user => implicit request =>
-    Ok(toJson(Draft.paged(pageParams, user)))
+  def edit(hash:String) = UserAction(parse.json) { user => implicit request =>
+    draftForm.bindFromRequest.fold(
+      errors => BadRequest(errors.toString),
+      draft => {
+        try {
+          assert(hash == draft.hash)
+          Draft.edit(draft, user)
+          Ok(toJson(Map("hash" -> toJson(hash))))
+        } catch {
+          case e:DraftNotFound => NotFound
+          case e:AssertionError => BadRequest
+        }
+      }
+    )
   }
 
   def draft(hash:String) = UserAction { user => implicit request =>
     Ok(toJson(Draft.findByHash(hash, user)))
-  }
-
-  def states = UserAction { user => implicit request =>
-    Ok(toJson(DraftState.list))
-  }
-
-  def draftsByState(name: String) = UserAction { user => implicit request =>
-    Ok(toJson(Draft.paged(pageParams, user, Some(name))))
   }
 }

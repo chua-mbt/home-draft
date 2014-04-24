@@ -1,9 +1,18 @@
-GET     /drafts              manager.controllers.DraftCon.drafts
-POST    /drafts              manager.controllers.DraftCon.make
-GET     /draft/:hash         manager.controllers.DraftCon.draft(hash: String)
-PUT     /draft/:hash         manager.controllers.DraftCon.mod(hash: String)
-GET     /draft-states        manager.controllers.DraftCon.states
-GET     /draft-states/:name  manager.controllers.DraftCon.draftsByState(name)
+GET     /drafts                             manager.controllers.draft.DSets.drafts
+POST    /drafts                             manager.controllers.draft.Details.make
+GET     /drafts/:hash                       manager.controllers.draft.Details.draft(hash: String)
+PUT     /drafts/:hash                       manager.controllers.draft.Details.edit(hash: String)
+
+GET     /drafts/:hash/participants          manager.controllers.draft.Participation.participants(hash: String)
+POST    /drafts/:hash/participants          manager.controllers.draft.Participation.add(hash: String)
+DELETE  /drafts/:hash/participants/:handle  manager.controllers.draft.Participation.remove(hash: String, handle: String)
+
+PUT     /drafts/:hash/state/next            manager.controllers.draft.DStates.next(hash: String)
+PUT     /drafts/:hash/state/previous        manager.controllers.draft.DStates.previous(hash: String)
+PUT     /drafts/:hash/state/abort           manager.controllers.draft.DStates.abort(hash: String)
+
+GET     /draft-states                       manager.controllers.draft.DSets.states
+GET     /draft-states/:name                 manager.controllers.draft.DSets.draftsByState(name)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file        manager.controllers.Assets.at(path="/public/manager", file)
+GET     /assets/*file                       manager.controllers.Assets.at(path="/public/manager", file)

@@ -23,8 +23,8 @@ object Participation extends Controller with Security {
   def add(
     hash: String
   ) = UserAction(parse.json) { user => implicit request =>
-    val handle = (request.body \ "handle").as[String]
     try {
+      val handle = (request.body \ "handle").as[String]
       Ok(toJson(Participant.add(
         hash, handle, user
       )))

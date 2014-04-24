@@ -14,7 +14,7 @@
   <drafting
     draft="draft"
     participants="participants"
-    ng-show="draft.state == 'drafting'"
+    ng-if="draft.state != 'upcoming' && draft.state != 'aborted'"
   ></drafting>
   <a ng-click="begin()"
      ng-show="draft.state == 'upcoming'">Begin</a>

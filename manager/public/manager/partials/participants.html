@@ -2,8 +2,10 @@
     type="text"
     ng-model="toAdd"
     ng-keyup="toAddChanged($event)"
+    ng-show="draft.state == 'upcoming'"
     placeholder="User Handle"/>
-<a ng-click="add(toAdd)">Add</a>
+<a ng-click="add(toAdd)"
+   ng-show="draft.state == 'upcoming'">Add</a>
 <table>
   <thead>
     <tr>

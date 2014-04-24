@@ -19,6 +19,10 @@ directive('draftForm', function(){
       mtgsets.query(function(response){
         $scope.mtgsets = response;
       });
+      $scope.$watch('draft.fee', function(newVal, oldVal){
+        if(!newVal) return;
+        $scope.draft.fee = parseFloat(newVal.toFixed(2));
+      });
     }
   }
 }).
@@ -45,6 +49,7 @@ directive('participants', function(){
         $scope.add($scope.toAdd);
       }
       $scope.add = function(handle){
+        if(!handle || handle.length < 1) return;
         participants.save(
           { hash: $routeParams.hash },
           { handle: handle },

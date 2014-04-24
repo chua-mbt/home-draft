@@ -15,7 +15,9 @@
     <tr ng-repeat="participant in participants">
       <td>{{ participant.user }}</td>
       <td>{{ participant.paid }}</td>
-      <td><a ng-click="remove(participant.user)">Remove</a></td>
+      <td><a
+        ng-click="remove(participant.user)"
+        ng-show="draft.state == 'upcoming'">Remove</a></td>
     </tr>
   </tbody>
 </table>

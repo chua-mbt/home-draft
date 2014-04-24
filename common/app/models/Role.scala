@@ -16,11 +16,11 @@ class RoleTable(tag: Tag) extends Table[Role](tag, "roles") {
 object Role {
   lazy val all = TableQuery[RoleTable]
   def findById(id: Int) = DB.withSession { implicit session =>
-    all.filter(_.id === id).firstOption
+    all.filter(_.id === id).first
   }
   def findByUser(user: User) = findById(user.roleId)
   def isUserAdmin(user: User) = {
     val role = findById(user.roleId)
-    role.isDefined && role.get.name == "admin"
+    role.name == "admin"
   }
 }

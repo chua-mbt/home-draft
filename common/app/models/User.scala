@@ -6,7 +6,9 @@ import play.api.db.slick.DB
 import scala.slick.driver.PostgresDriver.simple._
 import scala.slick.jdbc.{GetResult, StaticQuery}
 
-case class User(id: Long, handle: String, email: String, password: String, roleId: Int)
+case class User(
+  id: Long, handle: String, email: String, password: String, roleId: Int
+)
 
 class UserTable(tag: Tag) extends Table[User](tag, "users") {
   def id = column[Long]("user_id", O.PrimaryKey, O.AutoInc)

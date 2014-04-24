@@ -1,0 +1,30 @@
+<div>
+  <div>
+    <label>Start</label>
+    <div>{{ draft.start | date:'medium' }}</div>
+  </div>
+  <div>
+    <label>Sets</label>
+    <div>
+      <div>{{ draft.set1 }}</div>
+      <div>{{ draft.set2 }}</div>
+      <div>{{ draft.set3 }}</div>
+    </div>
+  </div>
+  <div>
+    <label>Venue</label>
+    <div>{{ draft.venue }}</div>
+  </div>
+  <div>
+    <label>Food</label>
+    <div>{{ draft.food }}</div>
+  </div>
+  <div>
+    <label>Fee</label>
+    <div>{{ draft.fee | currency }}</div>
+  </div>
+  <div>
+    <label>Details</label>
+    <div>{{ draft.details }}</div>
+  </div>
+</div>

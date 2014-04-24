@@ -1,6 +1,7 @@
 package manager.models
 
 import common.models._
+import common.util._
 
 import java.text.SimpleDateFormat
 import java.sql.Timestamp
@@ -15,7 +16,7 @@ import play.api.db.slick.DB
 import scala.slick.driver.PostgresDriver.simple._
 
 case class Draft(
-  var hash: String,
+  hash: String,
   start: Timestamp,
   set1: String,
   set2: String,
@@ -25,7 +26,10 @@ case class Draft(
   food: Option[String] = None,
   fee: Option[Float] = None,
   details: Option[String] = None
-)
+){
+  def setHash(newHash: String):Draft = copy(hash = newHash)
+  def setState(newState: Int):Draft = copy(state = newState)
+}
 
 class DraftTable(tag: Tag) extends Table[Draft](tag, "drafts") {
   def hash = column[String]("draft_hash", O.PrimaryKey)
@@ -81,24 +85,56 @@ object Draft{
       draft <- Draft.all if (
         draft.hash === participant.draftHash && draft.hash === hash
       )
-    } yield draft).firstOption
+    } yield draft).firstOption match {
+      case Some(draft) => draft
+      case None => throw DraftNotFound()
+    }
+  }
+  def isReady(hash: String) = DB.withSession { implicit session =>
+    val participants = Participant.count(hash)
+    (
+      (participants > Participant.minimumNumber) &&
+      (Math.isEven(participants))
+    )
   }
 
   def add(newDraft: Draft, user: User) = DB.withTransaction { implicit session =>
-    newDraft.hash = newHash(user.handle)
-    if(!all.filter(_.hash === newDraft.hash).exists.run){
-      all += newDraft
+    val draft = newDraft.setHash(newHash(user.handle))
+    if(!all.filter(_.hash === draft.hash).exists.run){
+      all += draft
       Participant.all += Participant(
-        newDraft.hash, user.id
+        draft.hash, user.id
       )
     }
-    newDraft.hash
+    draft.hash
   }
   def edit(draft: Draft, user: User) = DB.withTransaction { implicit session =>
-    if(!Draft.findByHash(draft.hash, user).isDefined) {
-      throw DraftNotFound()
-    }
+    Draft.findByHash(draft.hash, user)
     all.filter(_.hash === draft.hash).update(draft)
+  }
+
+  def changeState(draft: Draft, name: String) = DB.withTransaction { implicit session =>
+    val newState = DraftState.findByName(name)
+    Draft.all.filter(_.hash === draft.hash).update(
+      draft.setState(newState.number)
+    )
+    newState
+  }
+
+  def nextState(hash: String, user: User) = DB.withTransaction { implicit session =>
+    DraftState.transitionFor(
+      Draft.findByHash(hash, user)
+    ).next
+  }
+  def previousState(hash: String, user: User) = DB.withTransaction { implicit session =>
+    DraftState.transitionFor(
+      Draft.findByHash(hash, user)
+    ).previous
+  }
+  def abort(hash: String, user: User) = DB.withTransaction { implicit session =>
+    DraftState.transitionFor(
+      Draft.findByHash(hash, user)
+    ).abort
   }
 
   implicit object ReadWrite extends Writes[Draft] {
@@ -111,7 +147,7 @@ object Draft{
         "set3" -> toJson(o.set3),
         "venue" -> toJson(o.venue),
         "food" -> toJson(o.food),
-        "state" -> toJson(DraftState.findByNumber(o.state).get.name),
+        "state" -> toJson(DraftState.findByNumber(o.state).name),
         "fee" -> toJson(o.fee),
         "details" -> toJson(o.details),
         "participants" -> toJson(Participant.count(o.hash))

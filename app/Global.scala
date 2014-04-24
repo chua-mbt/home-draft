@@ -28,7 +28,7 @@ object Global extends GlobalSettings {
           ))
         }
       }
-    })//MTGSet.update
+    })
   }
 
   override def onStop(app: play.api.Application){

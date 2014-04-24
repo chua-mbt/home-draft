@@ -1,0 +1,14 @@
+<table>
+  <thead>
+    <tr>
+      <th>Handle</th>
+      <th>Seat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="participant in participants | orderBy:'seat'">
+      <td>{{ participant.user }}</td>
+      <td>{{ participant.seat }}</td>
+    </tr>
+  </tbody>
+</table>

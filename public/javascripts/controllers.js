@@ -26,18 +26,36 @@ controller('DraftNewCtrl', ['$scope', '$location', 'drafts',
 function ($scope, $location, drafts) {
   $scope.save = function(draft){
     drafts.save(
-      null, draft, function(response){
+      null, $scope.draft, function(response){
         $location.path('/drafts/'+response.hash);
       },
       function(){ alert("Something terrible happened..."); }
     );
   }
 }]).
-controller('DraftMgrCtrl', ['$scope', '$routeParams', 'drafts',
-function ($scope, $routeParams, drafts) {
-  $scope.save = function(draft){
+controller('DraftMgrCtrl', [
+  '$scope', '$routeParams', 'drafts', 'draft_state', 'participants',
+function ($scope, $routeParams, drafts, draft_state, participants) {
+  drafts.get({ hash: $routeParams.hash }, function(response){
+    $scope.draft = response;
+  });
+  $scope.changeState = function(newState, success){
+    draft_state.edit(
+      { hash: $routeParams.hash, transition: newState }, {}, function(response){
+        $scope.draft.state = response.name
+        if(success) { success(); }
+      }
+    );
+  }
+  $scope.begin = function(){ $scope.changeState("next", function(){
+    participants.query({ hash: $routeParams.hash }, function(response){
+      $scope.participants = response;
+    });
+  })}
+  $scope.abort = function(){ $scope.changeState("abort") }
+  $scope.save = function(){
     drafts.edit(
-      { hash: $routeParams.hash }, draft, function(){
+      { hash: $routeParams.hash }, $scope.draft, function(){
         alert("Saved");
       },
       function(){ alert("Something terrible happened..."); }

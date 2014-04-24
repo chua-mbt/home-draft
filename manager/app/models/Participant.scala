@@ -4,6 +4,7 @@ import common.models._
 
 import java.sql.Timestamp
 import java.util.Date
+import scala.util.Random
 
 import play.api.libs.json._
 import play.api.libs.json.Json._
@@ -18,7 +19,9 @@ case class Participant(
   joined: Timestamp = new Timestamp((new Date()).getTime()),
   paid: Boolean = false,
   seat: Option[Int] = None
-)
+){
+  def setSeat(newSeat: Int):Participant = copy(seat = Some(newSeat))
+}
 
 class ParticipantTable(tag: Tag) extends Table[Participant](tag, "participants") {
   def draftHash = column[String]("draft_hash", O.PrimaryKey)
@@ -36,17 +39,17 @@ class ParticipantTable(tag: Tag) extends Table[Participant](tag, "participants")
 }
 
 object Participant {
+  lazy val minimumNumber = 4
   lazy val all = TableQuery[ParticipantTable]
-  def forDraft(hash: String, user:User) = DB.withTransaction { implicit session =>
-    if(!Draft.findByHash(hash, user).isDefined) {
-      throw DraftNotFound()
-    }
+  def forDraft(draft: Draft) = DB.withTransaction { implicit session =>
     (for {
-      participant <- Participant.all
-      draft <- Draft.all if (
-        draft.hash === participant.draftHash && draft.hash === hash
-      )
+      participant <- Participant.all if (participant.draftHash === draft.hash)
     } yield participant).sortBy(_.joined.asc).list
+  }
+  def forDraft(
+    hash: String, user:User
+  ):List[Participant] = DB.withTransaction { implicit session =>
+    forDraft(Draft.findByHash(hash, user))
   }
   def count(hash: String) = DB.withSession { implicit session =>
     all.filter(_.draftHash === hash).list.length
@@ -55,39 +58,50 @@ object Participant {
   def add(
     hash: String, handle: String, user: User
   ) = DB.withTransaction { implicit session =>
-    val toAdd = User.findByHandle(handle)
-    if(!toAdd.isDefined) {
-      throw UserNotFound()
-    } else if(!Draft.findByHash(hash, user).isDefined) {
-      throw DraftNotFound()
-    } else if (count(hash) >= 8){
-      throw DraftFull()
+    Draft.findByHash(hash, user)
+    if (count(hash) >= 8){ throw DraftFull() }
+    User.findByHandle(handle) match {
+      case Some(User(id, _, _, _, _)) => {
+        val newParticipant = Participant(hash, id)
+        if(all
+            .filter(_.draftHash === newParticipant.draftHash)
+            .filter(_.userId === newParticipant.userId)
+            .exists.run){
+          throw UserAlreadyJoined()
+        }
+        all += newParticipant
+        newParticipant
+      }
+      case None => throw UserNotFound()
     }
-    val newParticipant = Participant(hash, toAdd.get.id)
-    if(all
-        .filter(_.draftHash === newParticipant.draftHash)
-        .filter(_.userId === newParticipant.userId)
-        .exists.run){
-      throw UserAlreadyJoined()
-    }
-    all += newParticipant
-    newParticipant
   }
   def remove(
     hash: String, handle: String, user: User
   ) = DB.withTransaction { implicit session =>
-    val toRemove = User.findByHandle(handle)
-    if(!toRemove.isDefined) {
-      throw UserNotFound()
-    } else if(!Draft.findByHash(hash, user).isDefined) {
-      throw DraftNotFound()
-    } else if (count(hash) <= 1){
-      throw DraftMinSize()
+    Draft.findByHash(hash, user)
+    if (count(hash) <= 1){ throw DraftMinSize() }
+    User.findByHandle(handle) match {
+      case Some(User(id, _, _, _, _)) => {
+        (all
+          .filter(_.draftHash === hash)
+          .filter(_.userId === id)
+          .delete)
+      }
+      case None => throw UserNotFound()
     }
+  }
+  def edit(participant: Participant) = DB.withSession { implicit session =>
     (all
-      .filter(_.draftHash === hash)
-      .filter(_.userId === toRemove.get.id)
-      .delete)
+      .filter(_.draftHash === participant.draftHash)
+      .filter(_.userId === participant.userId)
+      .update(participant))
+  }
+  def shuffleSeats(draft: Draft) = DB.withTransaction { implicit session =>
+    Random.shuffle(forDraft(draft)).zipWithIndex.foreach {
+      case (participant, index) => {
+        edit(participant.setSeat(index+1))
+      }
+    }
   }
 
   implicit object ReadWrite extends Writes[Participant] {

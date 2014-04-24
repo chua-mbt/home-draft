@@ -1,23 +1,32 @@
 angular.module(
   'home-draft.directives', []
 ).
+directive('draftDetails', function(){
+  return {
+    restrict: "E",
+    templateUrl: mgr_partial("draft_details"),
+    scope: { draft: "=" }
+  }
+}).
 directive('draftForm', function(){
   return {
     restrict: "E",
     templateUrl: mgr_partial("draft_form"),
-    scope: { save: "=" },
+    scope: { draft: "=", save: "=" },
     controller: function(
-      $scope, $attrs, $location, $routeParams, mtgsets, drafts
+      $scope, $location, $routeParams, mtgsets, drafts
     ) {
       mtgsets.query(function(response){
         $scope.mtgsets = response;
       });
-      if("edit" in $attrs){
-        drafts.get({ hash: $routeParams.hash }, function(response){
-          $scope.draft = response;
-        });
-      }
     }
+  }
+}).
+directive('drafting', function(){
+  return {
+    restrict: "E",
+    templateUrl: mgr_partial("drafting"),
+    scope: { draft: "=", participants: "=" }
   }
 }).
 directive('participants', function(){

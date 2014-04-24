@@ -1,0 +1,179 @@
+$gmultiple: 4;
+$fmultiple: $gmultiple/4;
+
+$grid-block: $gmultiple * 0.25em;
+$grid-column: $grid-block * 4;
+
+$baseline_adjust: 0.25em;
+
+@mixin responsive-max-width-wide() {
+
+	@include media (min-width ($grid-block * (21 + 3) + $grid-column * 21)) {
+		max-width: ($grid-block * (21 + 1) + $grid-column * 21);
+	}
+	@include media (min-width ($grid-block * (18 + 3) + $grid-column * 18)
+					max-width ($grid-block * (21 + 3) + $grid-column * 21)-1em/16) {
+		max-width: ($grid-block * (18 + 1) + $grid-column * 18);
+	}
+	@include media (min-width ($grid-block * (15 + 3) + $grid-column * 15)
+					max-width ($grid-block * (18 + 3) + $grid-column * 18)-1em/16) {
+		max-width: ($grid-block * (15 + 1) + $grid-column * 15);
+	}
+	@include media (min-width ($grid-block * (12 + 3) + $grid-column * 12)
+					max-width ($grid-block * (15 + 3) + $grid-column * 15)-1em/16) {
+		max-width: ($grid-block * (12 + 1) + $grid-column * 12);
+	}
+	@include media (min-width ($grid-block * (9 + 3) + $grid-column * 9)
+					max-width ($grid-block * (12 + 3) + $grid-column * 12)-1em/16) {
+		max-width: $grid-block * (9 + 1) + $grid-column * 9;
+	}
+	@include media (min-width ($grid-block * (6 + 3) + $grid-column * 6)
+					max-width ($grid-block * (9 + 3) + $grid-column * 9)-1em/16) {
+		max-width: ($grid-block * (6 + 1) + $grid-column * 6);
+	}
+	@include media (max-width ($grid-block * (6 + 3) + $grid-column * 6)-1em/16) {
+		max-width: ($grid-block * (3 + 1) + $grid-column * 3);
+	}
+}	
+
+@mixin responsive-max-width() {
+
+	@include media (min-width ($grid-block * (21 + 3) + $grid-column * 21)) {
+		max-width: ($grid-block * (18 + 1) + $grid-column * 18);
+	}
+	@include media (min-width ($grid-block * (18 + 3) + $grid-column * 18)
+					max-width ($grid-block * (21 + 3) + $grid-column * 21)-1em/16) {
+		max-width: ($grid-block * (15 + 1) + $grid-column * 15);
+	}
+	@include media (min-width ($grid-block * (15 + 3) + $grid-column * 15)
+					max-width ($grid-block * (18 + 3) + $grid-column * 18)-1em/16) {
+		max-width: ($grid-block * (12 + 1) + $grid-column * 12);
+	}
+	@include media (min-width ($grid-block * (12 + 3) + $grid-column * 12)
+					max-width ($grid-block * (15 + 3) + $grid-column * 15)-1em/16) {
+		max-width: $grid-block * (9 + 1) + $grid-column * 9;
+	}
+	@include media (min-width ($grid-block * (9 + 3) + $grid-column * 9)
+					max-width ($grid-block * (12 + 3) + $grid-column * 12)-1em/16) {
+		max-width: ($grid-block * (6 + 1) + $grid-column * 6);
+	}
+	@include media (min-width ($grid-block * (6 + 3) + $grid-column * 6)
+					max-width ($grid-block * (9 + 3) + $grid-column * 9)-1em/16) {
+		max-width: ($grid-block * (6 + 1) + $grid-column * 6);
+	}
+	@include media (max-width ($grid-block * (6 + 3) + $grid-column * 6)-1em/16) {
+		max-width: ($grid-block * (3 + 1) + $grid-column * 3);
+	}
+}	
+
+
+@mixin responsive-width() {
+
+	@include media (min-width ($grid-block * (21 + 3) + $grid-column * 21)) {
+		width: ($grid-block * (21 + 1) + $grid-column * 21);
+	}
+	@include media (min-width ($grid-block * (18 + 3) + $grid-column * 18)
+					max-width ($grid-block * (21 + 3) + $grid-column * 21)-1em/16) {
+		width: ($grid-block * (18 + 1) + $grid-column * 18);
+	}
+	@include media (min-width ($grid-block * (15 + 3) + $grid-column * 15)
+					max-width ($grid-block * (18 + 3) + $grid-column * 18)-1em/16) {
+		width: ($grid-block * (15 + 1) + $grid-column * 15);
+	}
+	@include media (min-width ($grid-block * (12 + 3) + $grid-column * 12)
+					max-width ($grid-block * (15 + 3) + $grid-column * 15)-1em/16) {
+		width: ($grid-block * (12 + 1) + $grid-column * 12);
+	}
+	@include media (min-width ($grid-block * (9 + 3) + $grid-column * 9)
+					max-width ($grid-block * (12 + 3) + $grid-column * 12)-1em/16) {
+		width: $grid-block * (9 + 1) + $grid-column * 9;
+	}
+	@include media (min-width ($grid-block * (6 + 3) + $grid-column * 6)
+					max-width ($grid-block * (9 + 3) + $grid-column * 9)-1em/16) {
+		width: ($grid-block * (6 + 1) + $grid-column * 6);
+	}
+	@include media (max-width ($grid-block * (6 + 3) + $grid-column * 6)-1em/16) {
+		width: ($grid-block * (3 + 1) + $grid-column * 3);
+	}
+}
+
+@mixin responsive-width-parag() {
+
+	@include media (min-width ($grid-block * (21 + 3) + $grid-column * 21)) {
+		width: ($grid-block * (21 + 1) + $grid-column * 21);
+	}
+	@include media (min-width ($grid-block * (18 + 3) + $grid-column * 18)
+					max-width ($grid-block * (21 + 3) + $grid-column * 21)-1em/16) {
+		width: ($grid-block * (18 + 1) + $grid-column * 18);
+	}
+	@include media (min-width ($grid-block * (15 + 3) + $grid-column * 15)
+					max-width ($grid-block * (18 + 3) + $grid-column * 18)-1em/16) {
+		width: ($grid-block * (15 + 1) + $grid-column * 15);
+	}
+	@include media (min-width ($grid-block * (12 + 3) + $grid-column * 12)
+					max-width ($grid-block * (15 + 3) + $grid-column * 15)-1em/16) {
+		width: ($grid-block * (12 + 1) + $grid-column * 12);
+	}
+	@include media (min-width ($grid-block * (9 + 3) + $grid-column * 9)
+					max-width ($grid-block * (12 + 3) + $grid-column * 12)-1em/16) {
+		width: ($grid-block * (9 + 1) + $grid-column * 9);
+	}
+	@include media (min-width ($grid-block * (6 + 3) + $grid-column * 6)
+					max-width ($grid-block * (9 + 3) + $grid-column * 9)-1em/16) {
+		width: ($grid-block * (6 + 1) + $grid-column * 6);
+	}
+	@include media (max-width ($grid-block * (6 + 3) + $grid-column * 6)-1em/16) {
+		width: ($grid-block * (3 + 1) + $grid-column * 3);
+	}
+}
+
+@mixin responsive-width-photobox() {
+
+	@include media (min-width ($grid-block * (21 + 3) + $grid-column * 21)) {
+		width: ($grid-block * (17 - 1) + $grid-column * 17);
+	}
+	@include media (min-width ($grid-block * (18 + 3) + $grid-column * 18)
+					max-width ($grid-block * (21 + 3) + $grid-column * 21)-1em/16) {
+		width: ($grid-block * (14 - 1) + $grid-column * 14);
+	}
+	@include media (min-width ($grid-block * (15 + 3) + $grid-column * 15)
+					max-width ($grid-block * (18 + 3) + $grid-column * 18)-1em/16) {
+		width: ($grid-block * (11 - 1) + $grid-column * 11);
+	}
+	@include media (min-width ($grid-block * (12 + 3) + $grid-column * 12)
+					max-width ($grid-block * (15 + 3) + $grid-column * 15)-1em/16) {
+		width: ($grid-block * (8 - 1) + $grid-column * 8);
+	}
+	@include media (min-width ($grid-block * (9 + 3) + $grid-column * 9)
+					max-width ($grid-block * (12 + 3) + $grid-column * 12)-1em/16) {
+		width: $grid-block * (5 - 1) + $grid-column * 5;
+	}
+	@include media (min-width ($grid-block * (6 + 3) + $grid-column * 6)
+					max-width ($grid-block * (9 + 3) + $grid-column * 9)-1em/16) {
+		width: ($grid-block * (3 - 1) + $grid-column * 3);
+	}
+	@include media (max-width ($grid-block * (6 + 3) + $grid-column * 6)-1em/16) {
+		width: ($grid-block * (3 - 1) + $grid-column * 3);
+	}
+}	
+
+
+@mixin span-grid ($cols) {
+	width: ($grid-column * $cols) + (($cols - 1) * $grid-block);
+	display: block;
+	float: left; 
+	margin-right: $grid-block;
+	&:last-child {
+	margin-right: 0;
+	} 
+}	
+
+@mixin span-grid-parag ($cols) {
+	width: (($grid-column * $cols) + (($cols - 1) * $grid-block)) / 0.75;
+	display: block;
+	float: left; 
+	margin-right: $grid-block / 0.75;
+	&:last-child {
+		margin-right: 0;
+	} 
+}

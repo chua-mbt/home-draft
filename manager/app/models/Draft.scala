@@ -2,6 +2,7 @@ package manager.models
 
 import common.models._
 import common.util._
+import manager.exceptions._
 
 import java.text.SimpleDateFormat
 import java.sql.Timestamp
@@ -50,7 +51,7 @@ class DraftTable(tag: Tag) extends Table[Draft](tag, "drafts") {
   def set3FK = foreignKey("drafts_draft_set3_fkey", set3, MTGSet.all)(_.id)
 }
 
-object Draft{
+object Draft extends HomeDraftModel {
   val tsFormat = "yyyy-MM-dd'T'HH:mm"
   def newHash(seed: String) = {
     new sun.misc.BASE64Encoder().encode(
@@ -80,15 +81,15 @@ object Draft{
     userDrafts.sortBy(_.start.desc).drop(params.start).take(params.count).list
   }
   def findByHash(hash: String, user: User) = DB.withSession { implicit session =>
-    (for {
-      participant <- Participant.all if participant.userId === user.id
-      draft <- Draft.all if (
-        draft.hash === participant.draftHash && draft.hash === hash
-      )
-    } yield draft).firstOption match {
-      case Some(draft) => draft
-      case None => throw DraftNotFound()
-    }
+    extract(
+      (for {
+        participant <- Participant.all if participant.userId === user.id
+        draft <- Draft.all if (
+          draft.hash === participant.draftHash && draft.hash === hash
+        )
+      } yield draft).firstOption,
+      DraftNotFound()
+    )
   }
   def isReady(hash: String) = DB.withSession { implicit session =>
     val participants = Participant.count(hash)

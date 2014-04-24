@@ -1,6 +1,7 @@
 package manager.models
 
 import common.models._
+import manager.exceptions._
 
 import java.sql.Timestamp
 import java.util.Date
@@ -61,7 +62,7 @@ object Participant {
     Draft.findByHash(hash, user)
     if (count(hash) >= 8){ throw DraftFull() }
     User.findByHandle(handle) match {
-      case Some(User(id, _, _, _, _)) => {
+      case User(id, _, _, _, _) => {
         val newParticipant = Participant(hash, id)
         if(all
             .filter(_.draftHash === newParticipant.draftHash)
@@ -72,7 +73,6 @@ object Participant {
         all += newParticipant
         newParticipant
       }
-      case None => throw UserNotFound()
     }
   }
   def remove(
@@ -81,13 +81,12 @@ object Participant {
     Draft.findByHash(hash, user)
     if (count(hash) <= 1){ throw DraftMinSize() }
     User.findByHandle(handle) match {
-      case Some(User(id, _, _, _, _)) => {
+      case User(id, _, _, _, _) => {
         (all
           .filter(_.draftHash === hash)
           .filter(_.userId === id)
           .delete)
       }
-      case None => throw UserNotFound()
     }
   }
   def edit(participant: Participant) = DB.withSession { implicit session =>
@@ -107,7 +106,7 @@ object Participant {
   implicit object ReadWrite extends Writes[Participant] {
     def writes(o: Participant) = {
       toJson(Map(
-        "user" -> toJson(User.findById(o.userId).get.handle),
+        "user" -> toJson(User.findById(o.userId).handle),
         "joined" -> toJson(o.joined),
         "paid" -> toJson(o.paid),
         "seat" -> toJson(o.seat)

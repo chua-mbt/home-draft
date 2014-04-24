@@ -6,8 +6,9 @@ import play.api.libs.json._
 import play.api.libs.json.Json._
 
 import common.controllers._
-import manager.models._
 import common.models._
+import manager.models._
+import manager.exceptions._
 
 object DStates extends Controller with Security {
   def next(hash: String) = UserAction { user => implicit request =>

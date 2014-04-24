@@ -1,5 +1,7 @@
 package common.models
 
+import common.exceptions._
+
 import play.api.Play.current
 import play.api.db.slick.DB
 
@@ -20,16 +22,20 @@ class UserTable(tag: Tag) extends Table[User](tag, "users") {
   def roleIdFK = foreignKey("users_user_role_fkey", roleId, Role.all)(_.id)
 }
 
-object User {
+object User extends HomeDraftModel {
   lazy val anonymous = User(-1, "", "", "", -1)
   lazy val all = TableQuery[UserTable]
 
-  def findById(id: Long) = DB.withSession { implicit session =>
+  def findByIdOpt(id: Long) = DB.withSession { implicit session =>
     all.filter(_.id === id).firstOption
   }
-  def findByHandle(handle: String) = DB.withSession { implicit session =>
+  def findById(id: Long) = extract(findByIdOpt(id), UserNotFound())
+  def findByHandleOpt(handle: String) = DB.withSession { implicit session =>
     all.filter(_.handle === handle).firstOption
   }
+  def findByHandle(
+    handle: String
+  ) = extract(findByHandleOpt(handle), UserNotFound())
 
   def add(newUser: User) = DB.withSession { implicit session =>
     all += newUser

@@ -7,7 +7,7 @@ import common.models._
 
 trait Security { self: Controller =>
   def user(implicit request: RequestHeader) =
-    request.session.get("user_id").flatMap(i => User.findById(i.toInt))
+    request.session.get("user_id").flatMap(i => User.findByIdOpt(i.toInt))
 
   def VisitorAction(
     f: Option[User] => Request[AnyContent] => SimpleResult

@@ -6,8 +6,10 @@ import play.api.libs.json._
 import play.api.libs.json.Json._
 
 import common.controllers._
-import manager.models._
 import common.models._
+import common.exceptions._
+import manager.models._
+import manager.exceptions._
 
 object Participation extends Controller with Security {
   def participants(hash: String) = UserAction { user => implicit request =>

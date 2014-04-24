@@ -1,5 +1,7 @@
 package common.models
 
+import common.exceptions._
+
 import play.api.Play.current
 import play.api.db.slick.DB
 
@@ -13,10 +15,13 @@ class RoleTable(tag: Tag) extends Table[Role](tag, "roles") {
   def * = (id, name) <> ((Role.apply _).tupled, Role.unapply)
 }
 
-object Role {
+object Role extends HomeDraftModel {
   lazy val all = TableQuery[RoleTable]
   def findById(id: Int) = DB.withSession { implicit session =>
-    all.filter(_.id === id).first
+    extract(
+      all.filter(_.id === id).firstOption,
+      NotFound("Role not found!")
+    )
   }
   def findByUser(user: User) = findById(user.roleId)
   def isUserAdmin(user: User) = {

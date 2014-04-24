@@ -1,6 +1,7 @@
 package manager.models
 
 import common.models._
+import manager.exceptions._
 
 import play.api.libs.json._
 import play.api.libs.json.Json._
@@ -37,23 +38,17 @@ class DraftStateTable(tag: Tag) extends Table[DraftState](tag, "dstates") {
   def * = (number, name) <> ((DraftState.apply _).tupled, DraftState.unapply)
 }
 
-object DraftState {
+object DraftState extends HomeDraftModel {
   lazy val all = TableQuery[DraftStateTable]
   lazy val allSorted = all.sortBy(_.number.asc)
   def list = DB.withSession { implicit session =>
     allSorted.list
   }
   def findByNumber(number: Int) = DB.withSession { implicit session =>
-    all.filter(_.number === number).firstOption match {
-      case Some(dstate) => dstate
-      case None => throw DStateNotFound()
-    }
+    extract(all.filter(_.number === number).firstOption, DStateNotFound())
   }
   def findByName(name: String) = DB.withSession { implicit session =>
-    all.filter(_.name === name).firstOption match {
-      case Some(dstate) => dstate
-      case None => throw DStateNotFound()
-    }
+    extract(all.filter(_.name === name).firstOption, DStateNotFound())
   }
   def transitionFor(draft: Draft) = DraftState.findByNumber(draft.state) match {
     case DraftState(_, "upcoming") => UpcomingTrans(draft)

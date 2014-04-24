@@ -20,8 +20,6 @@ object ApplicationBuild extends Build {
       appName + "-common", appVersion, appDependencies, path = file("common")
     ).settings(
       SassPlugin.sassSettings:_*
-    ).settings(
-      SassPlugin.sassOptions := Seq("--compass")
     )
 
     lazy val admin = play.Project(

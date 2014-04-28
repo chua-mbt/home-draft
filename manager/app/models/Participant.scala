@@ -25,7 +25,7 @@ case class Participant(
 }
 
 class ParticipantTable(tag: Tag) extends Table[Participant](tag, "participants") {
-  def draftHash = column[String]("draft_hash", O.PrimaryKey)
+  def draftHash = column[String]("draft_hash", O.NotNull)
   def userId = column[Long]("user_id", O.NotNull)
   def joined = column[Timestamp]("part_joined", O.NotNull, O.Default(
     new Timestamp((new Date()).getTime())

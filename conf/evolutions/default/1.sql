@@ -54,10 +54,20 @@ CREATE TABLE invitations (
 
 CREATE TABLE matches (
   draft_hash text REFERENCES drafts ON DELETE CASCADE,
-  user1 int NOT NULL REFERENCES users,
-  user2 int NOT NULL REFERENCES users,
+  player1 bigint NOT NULL REFERENCES users,
+  player1_score int,
+  player2 bigint NOT NULL REFERENCES users,
+  player2_score int,
   match_round int NOT NULL,
-  PRIMARY KEY(draft_hash, user1, user2, match_round)
+  PRIMARY KEY(draft_hash, player1, player2, match_round),
+  CHECK(player1 < player2),
+  CHECK(
+    (player1_score IS NULL AND player2_score IS NULL) OR
+    (player1_score = 2 AND player2_score = 0) OR
+    (player1_score = 2 AND player2_score = 1) OR
+    (player1_score = 1 AND player2_score = 2) OR
+    (player1_score = 0 AND player2_score = 2)
+  )
 );;
 
 CREATE TABLE participants (

@@ -45,4 +45,12 @@ object Participation extends Controller with Security {
       case e:DraftMinSize => BadRequest
     }
   }
+
+  def shuffleSeats(hash: String) = UserAction { user => implicit request =>
+    try {
+      Ok(toJson(Participant.shuffleSeats(hash)(user)))
+    } catch {
+      case e:DraftNotFound => NotFound
+    }
+  }
 }

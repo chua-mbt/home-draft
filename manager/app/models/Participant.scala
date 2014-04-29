@@ -90,12 +90,13 @@ object Participant {
         .filter(_.draftHash === participant.draftHash)
         .filter(_.userId === participant.userId)
         .update(participant))
+      participant
     }
 
     def shuffleSeats(draft: Draft) = DB.withTransaction { implicit session =>
-      Random.shuffle(forDraft(draft)).zipWithIndex.foreach {
+      Random.shuffle(forDraft(draft)).zipWithIndex.map {
         case (participant, index) => {
-          Data.edit(participant.setSeat(index+1))
+          edit(participant.setSeat(index+1))
         }
       }
     }
@@ -112,6 +113,10 @@ object Participant {
 
   def forDraft(hash: String)(user: User) = DB.withTransaction { implicit session =>
     Data.forDraft(Draft.Data.findByHash(hash)(user))
+  }
+
+  def shuffleSeats(hash: String)(user: User) = DB.withTransaction { implicit session =>
+    Data.shuffleSeats(Draft.Data.findByHash(hash)(user))
   }
 
   implicit object ReadWrite extends Writes[Participant] {

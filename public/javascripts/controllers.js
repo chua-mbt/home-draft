@@ -60,23 +60,18 @@ function ($scope, $routeParams, drafts, draft_state, draft_states, participants)
       $scope.dstateMap[$scope.draft.state] != $scope.dstateMap['aborted']
     )
   }
-  $scope.changeState = function(newState, success){
+  $scope.changeState = function(newState){
     draft_state.edit(
-      { hash: $routeParams.hash, transition: newState }, {}, function(response){
+      { hash: $scope.draft.hash, transition: newState }, {}, function(response){
         $scope.draft.state = response.name
-        if(success) { success(); }
       }
     );
   }
-  $scope.begin = function(){ $scope.changeState("next", function(){
-    participants.query({ hash: $routeParams.hash }, function(response){
-      $scope.participants = response;
-    });
-  })}
-  $scope.abort = function(){ $scope.changeState("abort") }
+  $scope.begin = function(){ $scope.changeState("next"); }
+  $scope.abort = function(){ $scope.changeState("abort"); }
   $scope.save = function(){
     drafts.edit(
-      { hash: $routeParams.hash }, $scope.draft, function(){
+      { hash: $scope.draft.hash }, $scope.draft, function(){
         alert("Saved");
       },
       function(){ alert("Something terrible happened..."); }

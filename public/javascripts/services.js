@@ -17,6 +17,10 @@ factory('draft_state', ['$resource',
 function ($resource) {
   return $resource('/manager/drafts/:hash/state/:transition', null, {'edit': { method:'PUT' }});
 }]).
+factory('seats', ['$resource',
+function ($resource) {
+  return $resource('/manager/drafts/:hash/seats', null, {'edit': { method:'PUT', isArray:true }});
+}]).
 factory('participants', ['$resource',
 function ($resource) {
   return $resource('/manager/drafts/:hash/participants/:handle');

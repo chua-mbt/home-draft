@@ -6,6 +6,7 @@ PUT     /drafts/:hash                         manager.controllers.draft.Details.
 GET     /drafts/:hash/participants            manager.controllers.draft.Participation.participants(hash: String)
 POST    /drafts/:hash/participants            manager.controllers.draft.Participation.add(hash: String)
 DELETE  /drafts/:hash/participants/:handle    manager.controllers.draft.Participation.remove(hash: String, handle: String)
+PUT     /drafts/:hash/seats                   manager.controllers.draft.Participation.shuffleSeats(hash: String)
 
 PUT     /drafts/:hash/state/next              manager.controllers.draft.DStates.next(hash: String)
 PUT     /drafts/:hash/state/previous          manager.controllers.draft.DStates.previous(hash: String)

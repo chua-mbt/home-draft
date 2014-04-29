@@ -34,7 +34,7 @@ case class DraftingTrans(draft: Draft) extends Transitions(draft) {
   }
   override def previous = {
     Match.Data.removeAllRounds(draft)
-    Draft.Data.changeState(draft, "drafting")
+    Draft.Data.changeState(draft, "upcoming")
   }
 }
 case class AbortedTrans(draft: Draft) extends Transitions(draft) {

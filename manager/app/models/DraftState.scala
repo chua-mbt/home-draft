@@ -18,7 +18,7 @@ sealed abstract class Transitions(draft: Draft) {
 }
 case class UpcomingTrans(draft: Draft) extends Transitions(draft) {
   override def next = DB.withTransaction { implicit session =>
-    if(!Draft.Data.isReady(draft.hash)){ throw DraftNotReady() }
+    if(!Draft.Data.isReady(draft)){ throw DraftNotReady() }
     Participant.Data.shuffleSeats(draft)
     Draft.Data.changeState(draft, "drafting")
   }

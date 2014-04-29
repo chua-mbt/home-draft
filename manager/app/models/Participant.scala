@@ -50,15 +50,14 @@ object Participant {
       } yield participant).sortBy(_.joined.asc).list
     }
 
-    def count(hash: String) = DB.withSession { implicit session =>
-      all.filter(_.draftHash === hash).list.length
+    def count(draft: Draft) = DB.withSession { implicit session =>
+      all.filter(_.draftHash === draft.hash).list.length
     }
 
     def add(
       hash: String, handle: String
     )(user: User) = DB.withTransaction { implicit session =>
-      Draft.findByHash(hash)(user)
-      if (count(hash) >= 8){ throw DraftFull() }
+      if (count(Draft.findByHash(hash)(user)) >= 8){ throw DraftFull() }
       User.findByHandle(handle) match {
         case User(id, _, _, _, _) => {
           val newParticipant = Participant(hash, id)
@@ -76,8 +75,7 @@ object Participant {
     def remove(
       hash: String, handle: String
     )(user: User) = DB.withTransaction { implicit session =>
-      Draft.findByHash(hash)(user)
-      if (count(hash) <= 1){ throw DraftMinSize() }
+      if (count(Draft.findByHash(hash)(user)) <= 1){ throw DraftMinSize() }
       User.findByHandle(handle) match {
         case User(id, _, _, _, _) => {
           (all

@@ -76,8 +76,8 @@ object Draft extends HomeDraftModel {
         DraftNotFound()
       )
     }
-    def isReady(hash: String) = DB.withSession { implicit session =>
-      val participants = Participant.Data.count(hash)
+    def isReady(draft: Draft) = DB.withSession { implicit session =>
+      val participants = Participant.Data.count(draft)
       (
         (participants > Participant.minimumNumber) &&
         (Math.isEven(participants))
@@ -161,7 +161,7 @@ object Draft extends HomeDraftModel {
         "state" -> toJson(DraftState.Data.findByNumber(o.state).name),
         "fee" -> toJson(o.fee),
         "details" -> toJson(o.details),
-        "participants" -> toJson(Participant.Data.count(o.hash))
+        "participants" -> toJson(Participant.Data.count(o))
       ))
     }
   }

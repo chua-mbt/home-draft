@@ -1,14 +1,14 @@
 <section>
   <header>Draft Manager</header>
   <div>
-    <div ng-show="draft.state == 'upcoming'">
+    <div ng-show="inState('upcoming')">
       <draft-form
         draft="draft" save="save"
       ></draft-form>
       <a ng-click="begin()">Begin</a>
       <a ng-click="abort()">Abort</a>
     </div>
-    <div ng-show="draft.state != 'upcoming'">
+    <div ng-show="pastState('upcoming')||inState('aborted')">
       <draft-details
         draft="draft"
       ></draft-details>
@@ -20,13 +20,13 @@
       participants="participants"
     ></participants>
   </div>
-  <div ng-if="draft.state != 'upcoming' && draft.state != 'aborted'">
+  <div ng-show="pastState('upcoming')">
     <drafting
       draft="draft"
       participants="participants"
     ></drafting>
   </div>
-  <div>
+  <div ng-show="pastState('drafting')">
     <match-ups
       draft="draft"
       participants="participants"

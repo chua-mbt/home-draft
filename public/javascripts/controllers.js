@@ -34,14 +34,32 @@ function ($scope, $location, drafts) {
   }
 }]).
 controller('DraftMgrCtrl', [
-  '$scope', '$routeParams', 'drafts', 'draft_state', 'participants',
-function ($scope, $routeParams, drafts, draft_state, participants) {
+  '$scope', '$routeParams', 'drafts', 'draft_state', 'draft_states', 'participants',
+function ($scope, $routeParams, drafts, draft_state, draft_states, participants) {
   draft_states.query(function(response){
-    $scope.dstates = response;
+    $scope.dstateMap = {};
+    response.map(
+      function(state){
+        $scope.dstateMap[state.name] = state.number;
+      }
+    );
   });
   drafts.get({ hash: $routeParams.hash }, function(response){
     $scope.draft = response;
   });
+  $scope.inState = function(state){
+    return (
+      $scope.dstateMap && $scope.draft &&
+      $scope.dstateMap[$scope.draft.state] == $scope.dstateMap[state]
+    );
+  }
+  $scope.pastState = function(state){
+    return (
+      $scope.dstateMap && $scope.draft &&
+      $scope.dstateMap[$scope.draft.state] > $scope.dstateMap[state] &&
+      $scope.dstateMap[$scope.draft.state] != $scope.dstateMap['aborted']
+    )
+  }
   $scope.changeState = function(newState, success){
     draft_state.edit(
       { hash: $routeParams.hash, transition: newState }, {}, function(response){

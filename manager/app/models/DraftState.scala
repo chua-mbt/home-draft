@@ -27,6 +27,16 @@ case class UpcomingTrans(draft: Draft) extends Transitions(draft) {
     Draft.Data.changeState(draft, "aborted")
   }
 }
+case class DraftingTrans(draft: Draft) extends Transitions(draft) {
+  override def next = DB.withTransaction { implicit session =>
+    Match.Data.makeFirstRound(draft)
+    Draft.Data.changeState(draft, "tournament")
+  }
+  override def previous = {
+    Match.Data.removeAllRounds(draft)
+    Draft.Data.changeState(draft, "drafting")
+  }
+}
 case class AbortedTrans(draft: Draft) extends Transitions(draft) {
   override def next = { throw DraftLocked() }
   override def previous = { throw DraftLocked() }
@@ -49,13 +59,14 @@ object DraftState extends HomeDraftModel {
 
     def transitionFor(draft: Draft) = DraftState.Data.findByNumber(draft.state) match {
       case DraftState(_, "upcoming") => UpcomingTrans(draft)
+      case DraftState(_, "drafting") => DraftingTrans(draft)
       case DraftState(_, "aborted") => AbortedTrans(draft)
     }
     def findByNumber(number: Int) = DB.withSession { implicit session =>
-      extract(all.filter(_.number === number).firstOption, DStateNotFound())
+      extract(all.filter(_.number === number).take(1).firstOption, DStateNotFound())
     }
     def findByName(name: String) = DB.withSession { implicit session =>
-      extract(all.filter(_.name === name).firstOption, DStateNotFound())
+      extract(all.filter(_.name === name).take(1).firstOption, DStateNotFound())
     }
   }
 
@@ -66,6 +77,7 @@ object DraftState extends HomeDraftModel {
   implicit object ReadWrite extends Writes[DraftState] {
     def writes(o: DraftState) = {
       toJson(Map(
+        "number" -> toJson(o.number),
         "name" -> toJson(o.name)
       ))
     }

@@ -36,6 +36,9 @@ function ($scope, $location, drafts) {
 controller('DraftMgrCtrl', [
   '$scope', '$routeParams', 'drafts', 'draft_state', 'participants',
 function ($scope, $routeParams, drafts, draft_state, participants) {
+  draft_states.query(function(response){
+    $scope.dstates = response;
+  });
   drafts.get({ hash: $routeParams.hash }, function(response){
     $scope.draft = response;
   });

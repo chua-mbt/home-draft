@@ -33,6 +33,13 @@ directive('drafting', function(){
     scope: { draft: "=", participants: "=" }
   }
 }).
+directive('matchUps', function(){
+  return {
+    restrict: "E",
+    templateUrl: mgr_partial("matchups"),
+    scope: { draft: "=", participants: "=" }
+  }
+}).
 directive('participants', function(){
   return {
     restrict: "E",

@@ -19,7 +19,7 @@ object Role extends HomeDraftModel {
   lazy val all = TableQuery[RoleTable]
   def findById(id: Int) = DB.withSession { implicit session =>
     extract(
-      all.filter(_.id === id).firstOption,
+      all.filter(_.id === id).take(1).firstOption,
       NotFound("Role not found!")
     )
   }

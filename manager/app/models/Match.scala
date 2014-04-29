@@ -3,6 +3,8 @@ package manager.models
 import common.models._
 import manager.exceptions._
 
+import scala.util.Random
+
 import play.api.libs.json._
 import play.api.libs.json.Json._
 import play.api.Play.current
@@ -12,8 +14,8 @@ import scala.slick.driver.PostgresDriver.simple._
 
 case class Record(
   player: Long,
-  wins: Option[Int],
-  losses: Option[Int]
+  wins: Option[Int] = None,
+  losses: Option[Int] = None
 ){
   def validate = this match {
     case Record(_, None, None) => this
@@ -77,14 +79,71 @@ class MatchTable(tag: Tag) extends Table[MatchRaw](tag, "matches") {
 
 object Match extends HomeDraftModel {
   private[models] object Data {
-
     lazy val all = TableQuery[MatchTable]
 
-    def rounds(draft: Draft) = DB.withSession { implicit session =>
-      // create randomized matches, add each
+    def add(newMatch: Match) = DB.withTransaction { implicit session =>
+      val raw = newMatch.validate.raw
+      if(!all
+          .filter(_.draftHash === raw.draftHash)
+          .filter(_.player1 === raw.player1)
+          .filter(_.player2 === raw.player2)
+          .filter(_.round === raw.round)
+          .exists.run){
+        all += raw
+      }
+      newMatch.draftHash
     }
-    def initialize(draft: Draft) = DB.withSession { implicit session =>
-      // create randomized matches, add each
+    def rounds(draft: Draft) = DB.withSession { implicit session =>
+      all.filter(_.draftHash === draft.hash).map(_.round).max.run.getOrElse(0)
+    }
+    def removeAllRounds(draft: Draft) = DB.withTransaction { implicit session =>
+      all.filter(_.draftHash === draft.hash).delete
+      rounds(draft)
+    }
+    def removeCurrentRound(draft: Draft) = DB.withTransaction { implicit session =>
+      all.filter(_.draftHash === draft.hash).filter(_.round === rounds(draft)).delete
+      rounds(draft)
+    }
+    def replaceCurrentRound(
+      draft: Draft, matches: Set[Match]
+    ) = DB.withTransaction { implicit session =>
+      val expectedRound = removeCurrentRound(draft)+1
+      matches foreach { roundMatch =>
+        assert(roundMatch.draftHash == draft.hash)
+        assert(roundMatch.round == expectedRound)
+        add(roundMatch)
+      }
+      expectedRound
+    }
+    def makeNextRound(draft: Draft) = DB.withTransaction { implicit session =>
+      rounds(draft) match {
+        case 0 => makeFirstRound(draft: Draft)
+        case _ => None//makeNewRound(draft: Draft, _)
+      }
+    }
+    def makeFirstRound(draft: Draft) = DB.withTransaction { implicit session =>
+      val participants = Random.shuffle(Participant.Data.forDraft(draft))
+      val round = 1
+      val matches = participants.grouped(2).toList map {
+        pair => add(Match(draft.hash, Set(
+            Record(pair(0).userId),
+            Record(pair(1).userId)
+          ), round))
+      }
+      round
+    }
+
+    def getRound(draft: Draft, round: Int) = DB.withSession { implicit session =>
+      all
+        .filter(_.draftHash === draft.hash)
+        .filter(_.round === round)
+        .list.toSet map { raw:MatchRaw => raw.process }
+    }
+    def getCurrentRound(draft: Draft) = DB.withTransaction { implicit session =>
+      getRound(draft, rounds(draft))
+    }
+    def getAllRounds(draft: Draft) = DB.withTransaction { implicit session =>
+      1 to rounds(draft) map { getRound(draft, _) }
     }
   }
 

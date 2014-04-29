@@ -72,7 +72,7 @@ object Draft extends HomeDraftModel {
           draft <- all if (
             draft.hash === participant.draftHash && draft.hash === hash
           )
-        } yield draft).firstOption,
+        } yield draft).take(1).firstOption,
         DraftNotFound()
       )
     }

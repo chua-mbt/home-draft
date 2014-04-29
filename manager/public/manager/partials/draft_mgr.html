@@ -1,24 +1,36 @@
 <section>
   <header>Draft Manager</header>
-  <draft-form
-    draft="draft" save="save"
-    ng-show="draft.state == 'upcoming'"
-  ></draft-form>
-  <draft-details
-    draft="draft"
-    ng-show="draft.state != 'upcoming'"></draft-details>
-  <participants
-    draft="draft"
-    participants="participants"
-  ></participants>
-  <drafting
-    draft="draft"
-    participants="participants"
-    ng-if="draft.state != 'upcoming' && draft.state != 'aborted'"
-  ></drafting>
-  <a ng-click="begin()"
-     ng-show="draft.state == 'upcoming'">Begin</a>
-  <a ng-click="abort()"
-     ng-show="draft.state == 'upcoming'">Abort</a>
+  <div>
+    <div ng-show="draft.state == 'upcoming'">
+      <draft-form
+        draft="draft" save="save"
+      ></draft-form>
+      <a ng-click="begin()">Begin</a>
+      <a ng-click="abort()">Abort</a>
+    </div>
+    <div ng-show="draft.state != 'upcoming'">
+      <draft-details
+        draft="draft"
+      ></draft-details>
+    </div>
+  </div>
+  <div>
+    <participants
+      draft="draft"
+      participants="participants"
+    ></participants>
+  </div>
+  <div ng-if="draft.state != 'upcoming' && draft.state != 'aborted'">
+    <drafting
+      draft="draft"
+      participants="participants"
+    ></drafting>
+  </div>
+  <div>
+    <match-ups
+      draft="draft"
+      participants="participants"
+    ></match-ups>
+  </div>
   <a href="drafts">Return</a>
 </section>

@@ -51,7 +51,7 @@ object Participant {
     }
 
     def count(draft: Draft) = DB.withSession { implicit session =>
-      all.filter(_.draftHash === draft.hash).list.length
+      all.filter(_.draftHash === draft.hash).length.run
     }
 
     def add(

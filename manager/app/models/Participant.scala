@@ -55,12 +55,12 @@ object Participant {
     }
 
     def add(
-      hash: String, handle: String
-    )(user: User) = DB.withTransaction { implicit session =>
-      if (count(Draft.findByHash(hash)(user)) >= 8){ throw DraftFull() }
+      draft: Draft, handle: String
+    ) = DB.withTransaction { implicit session =>
+      if (count(draft) >= 8){ throw DraftFull() }
       User.findByHandle(handle) match {
         case User(id, _, _, _, _) => {
-          val newParticipant = Participant(hash, id)
+          val newParticipant = Participant(draft.hash, id)
           if(all
               .filter(_.draftHash === newParticipant.draftHash)
               .filter(_.userId === newParticipant.userId)
@@ -73,13 +73,13 @@ object Participant {
       }
     }
     def remove(
-      hash: String, handle: String
-    )(user: User) = DB.withTransaction { implicit session =>
-      if (count(Draft.findByHash(hash)(user)) <= 1){ throw DraftMinSize() }
+      draft: Draft, handle: String
+    ) = DB.withTransaction { implicit session =>
+      if (count(draft) <= 1){ throw DraftMinSize() }
       User.findByHandle(handle) match {
         case User(id, _, _, _, _) => {
           (all
-            .filter(_.draftHash === hash)
+            .filter(_.draftHash === draft.hash)
             .filter(_.userId === id)
             .delete)
         }
@@ -101,8 +101,13 @@ object Participant {
     }
   }
 
-  def add(hash: String, handle: String)(user: User) = Data.add(hash, handle)(user)
-  def remove(hash: String, handle: String)(user: User) = Data.remove(hash, handle)(user)
+  def add(hash: String, handle: String)(user: User) = DB.withTransaction { implicit session =>
+    Data.add((Draft.Data.findByHash(hash)(user)), handle)
+  }
+
+  def remove(hash: String, handle: String)(user: User) = DB.withTransaction { implicit session =>
+    Data.remove((Draft.Data.findByHash(hash)(user)), handle)
+  }
   def edit(participant: Participant) = Data.edit(participant)
 
   def forDraft(hash: String)(user: User) = DB.withTransaction { implicit session =>

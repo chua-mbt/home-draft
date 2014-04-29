@@ -14,7 +14,7 @@ import manager.exceptions._
 object Participation extends Controller with Security {
   def participants(hash: String) = UserAction { user => implicit request =>
     try {
-      Ok(toJson(Participant.forDraft(hash, user)))
+      Ok(toJson(Participant.forDraft(hash)(user)))
     } catch {
       case e:DraftNotFound => NotFound
     }
@@ -25,9 +25,7 @@ object Participation extends Controller with Security {
   ) = UserAction(parse.json) { user => implicit request =>
     try {
       val handle = (request.body \ "handle").as[String]
-      Ok(toJson(Participant.add(
-        hash, handle, user
-      )))
+      Ok(toJson(Participant.add(hash, handle)(user)))
     } catch {
       case e:UserNotFound => NotFound
       case e:UserAlreadyJoined => BadRequest
@@ -40,9 +38,7 @@ object Participation extends Controller with Security {
     hash: String, handle: String
   ) = UserAction { user => implicit request =>
     try {
-      Ok(toJson(Participant.remove(
-        hash, handle, user
-      )))
+      Ok(toJson(Participant.remove(hash, handle)(user)))
     } catch {
       case e:UserNotFound => NotFound
       case e:DraftNotFound => NotFound

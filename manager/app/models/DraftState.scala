@@ -18,13 +18,13 @@ sealed abstract class Transitions(draft: Draft) {
 }
 case class UpcomingTrans(draft: Draft) extends Transitions(draft) {
   override def next = DB.withTransaction { implicit session =>
-    if(!Draft.isReady(draft.hash)){ throw DraftNotReady() }
-    Participant.shuffleSeats(draft)
-    Draft.changeState(draft, "drafting")
+    if(!Draft.Data.isReady(draft.hash)){ throw DraftNotReady() }
+    Participant.Data.shuffleSeats(draft)
+    Draft.Data.changeState(draft, "drafting")
   }
-  override def previous = { DraftState.findByName("upcoming") }
+  override def previous = { DraftState.Data.findByName("upcoming") }
   override def abort = DB.withTransaction { implicit session =>
-    Draft.changeState(draft, "aborted")
+    Draft.Data.changeState(draft, "aborted")
   }
 }
 case class AbortedTrans(draft: Draft) extends Transitions(draft) {
@@ -39,21 +39,29 @@ class DraftStateTable(tag: Tag) extends Table[DraftState](tag, "dstates") {
 }
 
 object DraftState extends HomeDraftModel {
-  lazy val all = TableQuery[DraftStateTable]
-  lazy val allSorted = all.sortBy(_.number.asc)
-  def list = DB.withSession { implicit session =>
-    allSorted.list
+  private[models] object Data {
+    lazy val all = TableQuery[DraftStateTable]
+    lazy val allSorted = all.sortBy(_.number.asc)
+
+    def list = DB.withSession { implicit session =>
+      Data.allSorted.list
+    }
+
+    def transitionFor(draft: Draft) = DraftState.Data.findByNumber(draft.state) match {
+      case DraftState(_, "upcoming") => UpcomingTrans(draft)
+      case DraftState(_, "aborted") => AbortedTrans(draft)
+    }
+    def findByNumber(number: Int) = DB.withSession { implicit session =>
+      extract(all.filter(_.number === number).firstOption, DStateNotFound())
+    }
+    def findByName(name: String) = DB.withSession { implicit session =>
+      extract(all.filter(_.name === name).firstOption, DStateNotFound())
+    }
   }
-  def findByNumber(number: Int) = DB.withSession { implicit session =>
-    extract(all.filter(_.number === number).firstOption, DStateNotFound())
-  }
-  def findByName(name: String) = DB.withSession { implicit session =>
-    extract(all.filter(_.name === name).firstOption, DStateNotFound())
-  }
-  def transitionFor(draft: Draft) = DraftState.findByNumber(draft.state) match {
-    case DraftState(_, "upcoming") => UpcomingTrans(draft)
-    case DraftState(_, "aborted") => AbortedTrans(draft)
-  }
+
+  def findByNumber(number: Int) = Data.findByNumber(number)
+  def findByName(name: String) = Data.findByName(name)
+  def list = Data.list
 
   implicit object ReadWrite extends Writes[DraftState] {
     def writes(o: DraftState) = {

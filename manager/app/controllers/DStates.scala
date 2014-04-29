@@ -13,7 +13,7 @@ import manager.exceptions._
 object DStates extends Controller with Security {
   def next(hash: String) = UserAction { user => implicit request =>
     try{
-      Ok(toJson(Draft.nextState(hash, user)))
+      Ok(toJson(Draft.nextState(hash)(user)))
     } catch {
       case e:DraftNotFound => NotFound
       case e:DraftNotReady => BadRequest
@@ -22,7 +22,7 @@ object DStates extends Controller with Security {
 
   def previous(hash: String) = UserAction { user => implicit request =>
     try{
-      Ok(toJson(Draft.previousState(hash, user)))
+      Ok(toJson(Draft.previousState(hash)(user)))
     } catch {
       case e:DraftNotFound => NotFound
     }
@@ -30,7 +30,7 @@ object DStates extends Controller with Security {
 
   def abort(hash: String) = UserAction { user => implicit request =>
     try{
-      Ok(toJson(Draft.abort(hash, user)))
+      Ok(toJson(Draft.abort(hash)(user)))
     } catch {
       case e:DraftNotFound => NotFound
       case e:DraftLocked => BadRequest

@@ -45,7 +45,7 @@ class DraftTable(tag: Tag) extends Table[Draft](tag, "drafts") {
   def details = column[Option[String]]("draft_details")
   def * = (hash, start, set1, set2, set3, state, venue, food, fee, details) <>
     ((Draft.apply _).tupled, Draft.unapply)
-  def stateFK = foreignKey("drafts_draft_state_fkey", state, DraftState.all)(_.number)
+  def stateFK = foreignKey("drafts_draft_state_fkey", state, DraftState.Data.all)(_.number)
   def set1FK = foreignKey("drafts_draft_set1_fkey", set1, MTGSet.all)(_.id)
   def set2FK = foreignKey("drafts_draft_set2_fkey", set2, MTGSet.all)(_.id)
   def set3FK = foreignKey("drafts_draft_set3_fkey", set3, MTGSet.all)(_.id)
@@ -53,88 +53,98 @@ class DraftTable(tag: Tag) extends Table[Draft](tag, "drafts") {
 
 object Draft extends HomeDraftModel {
   val tsFormat = "yyyy-MM-dd'T'HH:mm"
-  def newHash(seed: String) = {
-    new sun.misc.BASE64Encoder().encode(
-      MessageDigest.getInstance("SHA-1").digest(
-        (seed + System.currentTimeMillis.toString).getBytes
-      )
-    ) replace('+', '-') replace('/','_') replace("=", "")
-  }
 
-  lazy val all = TableQuery[DraftTable]
-  lazy val allSorted = all.sortBy(_.start.desc)
-  def paged(
-    params: PageParam, user: User, state: Option[String] = None
-  ) = DB.withTransaction { implicit session =>
-    var userDrafts = for {
-      participant <- Participant.all if participant.userId === user.id
-      draft <- Draft.all if draft.hash === participant.draftHash
-    } yield draft
-    state map {
-      name => {
-        userDrafts = for{
-          dstate <- DraftState.all if dstate.name === name
-          draft <- userDrafts if draft.state === dstate.number
-        } yield draft
-      }
-    }
-    userDrafts.sortBy(_.start.desc).drop(params.start).take(params.count).list
-  }
-  def findByHash(hash: String, user: User) = DB.withSession { implicit session =>
-    extract(
-      (for {
-        participant <- Participant.all if participant.userId === user.id
-        draft <- Draft.all if (
-          draft.hash === participant.draftHash && draft.hash === hash
+  private[models] object Data {
+    lazy val all = TableQuery[DraftTable]
+    lazy val allSorted = all.sortBy(_.start.desc)
+
+    def newHash(seed: String) = {
+      new sun.misc.BASE64Encoder().encode(
+        MessageDigest.getInstance("SHA-1").digest(
+          (seed + System.currentTimeMillis.toString).getBytes
         )
-      } yield draft).firstOption,
-      DraftNotFound()
-    )
-  }
-  def isReady(hash: String) = DB.withSession { implicit session =>
-    val participants = Participant.count(hash)
-    (
-      (participants > Participant.minimumNumber) &&
-      (Math.isEven(participants))
-    )
-  }
-
-  def add(newDraft: Draft, user: User) = DB.withTransaction { implicit session =>
-    val draft = newDraft.setHash(newHash(user.handle))
-    if(!all.filter(_.hash === draft.hash).exists.run){
-      all += draft
-      Participant.all += Participant(
-        draft.hash, user.id
+      ) replace('+', '-') replace('/','_') replace("=", "")
+    }
+    def findByHash(hash: String)(user: User) = DB.withSession { implicit session =>
+      extract(
+        (for {
+          participant <- Participant.Data.all if participant.userId === user.id
+          draft <- all if (
+            draft.hash === participant.draftHash && draft.hash === hash
+          )
+        } yield draft).firstOption,
+        DraftNotFound()
       )
     }
-    draft.hash
-  }
-  def edit(draft: Draft, user: User) = DB.withTransaction { implicit session =>
-    Draft.findByHash(draft.hash, user)
-    all.filter(_.hash === draft.hash).update(draft)
+    def isReady(hash: String) = DB.withSession { implicit session =>
+      val participants = Participant.Data.count(hash)
+      (
+        (participants > Participant.minimumNumber) &&
+        (Math.isEven(participants))
+      )
+    }
+    def paged(
+      params: PageParam, state: Option[String]
+    )(user: User) = DB.withTransaction { implicit session =>
+      var userDrafts = for {
+        participant <- Participant.Data.all if participant.userId === user.id
+        draft <- Data.all if draft.hash === participant.draftHash
+      } yield draft
+      state map {
+        name => {
+          userDrafts = for{
+            dstate <- DraftState.Data.all if dstate.name === name
+            draft <- userDrafts if draft.state === dstate.number
+          } yield draft
+        }
+      }
+      userDrafts.sortBy(_.start.desc).drop(params.start).take(params.count).list
+    }
+
+    def add(newDraft: Draft)(user: User) = DB.withTransaction { implicit session =>
+      val draft = newDraft.setHash(newHash(user.handle))
+      if(!all.filter(_.hash === draft.hash).exists.run){
+        all += draft
+        Participant.Data.all += Participant(
+          draft.hash, user.id
+        )
+      }
+      draft.hash
+    }
+    def edit(draft: Draft)(user: User) = DB.withTransaction { implicit session =>
+      Data.findByHash(draft.hash)(user)
+      all.filter(_.hash === draft.hash).update(draft)
+    }
+
+    def changeState(draft: Draft, name: String) = DB.withTransaction { implicit session =>
+      val newState = DraftState.Data.findByName(name)
+      all.filter(_.hash === draft.hash).update(
+        draft.setState(newState.number)
+      )
+      newState
+    }
   }
 
-  def changeState(draft: Draft, name: String) = DB.withTransaction { implicit session =>
-    val newState = DraftState.findByName(name)
-    Draft.all.filter(_.hash === draft.hash).update(
-      draft.setState(newState.number)
-    )
-    newState
-  }
+  def paged(params: PageParam, state: Option[String] = None)(user: User) =
+    Data.paged(params, state)(user)
 
-  def nextState(hash: String, user: User) = DB.withTransaction { implicit session =>
-    DraftState.transitionFor(
-      Draft.findByHash(hash, user)
+  def add(newDraft: Draft)(user: User) = Data.add(newDraft)(user)
+  def edit(draft: Draft)(user: User) = Data.edit(draft)(user)
+  def findByHash(hash: String)(user: User) = Data.findByHash(hash)(user)
+
+  def nextState(hash: String)(user: User) = DB.withTransaction { implicit session =>
+    DraftState.Data.transitionFor(
+      Data.findByHash(hash)(user)
     ).next
   }
-  def previousState(hash: String, user: User) = DB.withTransaction { implicit session =>
-    DraftState.transitionFor(
-      Draft.findByHash(hash, user)
+  def previousState(hash: String)(user: User) = DB.withTransaction { implicit session =>
+    DraftState.Data.transitionFor(
+      Data.findByHash(hash)(user)
     ).previous
   }
-  def abort(hash: String, user: User) = DB.withTransaction { implicit session =>
-    DraftState.transitionFor(
-      Draft.findByHash(hash, user)
+  def abort(hash: String)(user: User) = DB.withTransaction { implicit session =>
+    DraftState.Data.transitionFor(
+      Data.findByHash(hash)(user)
     ).abort
   }
 
@@ -148,10 +158,10 @@ object Draft extends HomeDraftModel {
         "set3" -> toJson(o.set3),
         "venue" -> toJson(o.venue),
         "food" -> toJson(o.food),
-        "state" -> toJson(DraftState.findByNumber(o.state).name),
+        "state" -> toJson(DraftState.Data.findByNumber(o.state).name),
         "fee" -> toJson(o.fee),
         "details" -> toJson(o.details),
-        "participants" -> toJson(Participant.count(o.hash))
+        "participants" -> toJson(Participant.Data.count(o.hash))
       ))
     }
   }

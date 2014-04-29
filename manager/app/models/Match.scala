@@ -70,19 +70,22 @@ class MatchTable(tag: Tag) extends Table[MatchRaw](tag, "matches") {
   def * = (draftHash, player1, player1Score, player2, player2Score, round) <>
     ((MatchRaw.apply _).tupled, MatchRaw.unapply)
   def pk = primaryKey("matches_pkey", (draftHash, player1, player2, round))
-  def draftHashFK = foreignKey("matches_draft_hash_fkey", draftHash, Draft.all)(_.hash)
+  def draftHashFK = foreignKey("matches_draft_hash_fkey", draftHash, Draft.Data.all)(_.hash)
   def player1FK = foreignKey("participants_player1_fkey", player1, User.all)(_.id)
   def player2FK = foreignKey("participants_player2_fkey", player2, User.all)(_.id)
 }
 
 object Match extends HomeDraftModel {
-  lazy val all = TableQuery[MatchTable]
+  private[models] object Data {
 
-  private def rounds(draft: Draft) = DB.withSession { implicit session =>
-    // create randomized matches, add each
-  }
-  private def initialize(draft: Draft) = DB.withSession { implicit session =>
-    // create randomized matches, add each
+    lazy val all = TableQuery[MatchTable]
+
+    def rounds(draft: Draft) = DB.withSession { implicit session =>
+      // create randomized matches, add each
+    }
+    def initialize(draft: Draft) = DB.withSession { implicit session =>
+      // create randomized matches, add each
+    }
   }
 
   implicit object RecordReadWrite extends Writes[Record] {

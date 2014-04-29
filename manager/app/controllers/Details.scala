@@ -44,7 +44,7 @@ object Details extends Controller with Security {
     draftForm.bindFromRequest.fold(
       errors => BadRequest(errors.toString),
       newDraft => {
-        val hash = Draft.add(newDraft, user)
+        val hash = Draft.add(newDraft)(user)
         Ok(toJson(Map("hash" -> toJson(hash))))
       }
     )
@@ -56,7 +56,7 @@ object Details extends Controller with Security {
       draft => {
         try {
           assert(hash == draft.hash)
-          Draft.edit(draft, user)
+          Draft.edit(draft)(user)
           Ok(toJson(Map("hash" -> toJson(hash))))
         } catch {
           case e:DraftNotFound => NotFound
@@ -67,6 +67,6 @@ object Details extends Controller with Security {
   }
 
   def draft(hash:String) = UserAction { user => implicit request =>
-    Ok(toJson(Draft.findByHash(hash, user)))
+    Ok(toJson(Draft.findByHash(hash)(user)))
   }
 }

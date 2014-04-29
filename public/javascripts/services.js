@@ -21,6 +21,14 @@ factory('seats', ['$resource',
 function ($resource) {
   return $resource('/manager/drafts/:hash/seats', null, {'edit': { method:'PUT', isArray:true }});
 }]).
+factory('matches', ['$resource',
+function ($resource) {
+  return $resource('/manager/drafts/:hash/matches/rounds/:round', null, {'edit': { method:'PUT', isArray:true }});
+}]).
+factory('standings', ['$resource',
+function ($resource) {
+  return $resource('/manager/drafts/:hash/standings');
+}]).
 factory('participants', ['$resource',
 function ($resource) {
   return $resource('/manager/drafts/:hash/participants/:handle');

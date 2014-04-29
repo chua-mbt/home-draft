@@ -12,11 +12,11 @@ PUT     /drafts/:hash/state/next              manager.controllers.draft.DStates.
 PUT     /drafts/:hash/state/previous          manager.controllers.draft.DStates.previous(hash: String)
 PUT     /drafts/:hash/state/abort             manager.controllers.draft.DStates.abort(hash: String)
 
-GET     /drafts/:hash/matches/round/:round    manager.controllers.draft.MatchUps.forRound(hash: String, round: Int)
-GET     /drafts/:hash/matches/round/current   manager.controllers.draft.MatchUps.current(hash: String)
-POST    /drafts/:hash/matches/round/current   manager.controllers.draft.MatchUps.next(hash: String)
-PUT     /drafts/:hash/matches/round/current   manager.controllers.draft.MatchUps.edit(hash: String)
-DELETE  /drafts/:hash/matches/round/current   manager.controllers.draft.MatchUps.cancel(hash: String)
+GET     /drafts/:hash/matches/rounds/:round   manager.controllers.draft.MatchUps.forRound(hash: String, round: Int)
+GET     /drafts/:hash/matches/rounds/current  manager.controllers.draft.MatchUps.current(hash: String)
+POST    /drafts/:hash/matches/rounds/current  manager.controllers.draft.MatchUps.next(hash: String)
+PUT     /drafts/:hash/matches/rounds/current  manager.controllers.draft.MatchUps.edit(hash: String)
+DELETE  /drafts/:hash/matches/rounds/current  manager.controllers.draft.MatchUps.cancel(hash: String)
 GET     /drafts/:hash/standings               manager.controllers.draft.MatchUps.standings(hash: String)
 
 GET     /draft-states                         manager.controllers.draft.DSets.states

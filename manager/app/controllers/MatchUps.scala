@@ -14,7 +14,7 @@ import manager.exceptions._
 object MatchUps extends Controller with Security {
   def forRound(hash: String, round: Int) = UserAction { user => implicit request =>
     try {
-      Ok(toJson("OK"))
+      Ok(toJson(Match.forRound(hash, round)(user)))
     } catch {
       case e:DraftNotFound => NotFound
     }
@@ -22,7 +22,7 @@ object MatchUps extends Controller with Security {
 
   def current(hash: String) = UserAction { user => implicit request =>
     try {
-      Ok(toJson("OK"))
+      Ok(toJson(Match.getCurrentRound(hash)(user)))
     } catch {
       case e:DraftNotFound => NotFound
     }
@@ -36,11 +36,15 @@ object MatchUps extends Controller with Security {
     }
   }
 
-  def edit(hash: String) = UserAction { user => implicit request =>
+  def edit(hash: String) = UserAction(parse.json) { user => implicit request =>
     try {
-      Ok(toJson("OK"))
+      val matches = fromJson[List[Match]](request.body).get.toSet
+      Ok(toJson(Match.replaceCurrentRound(hash, matches)(user)))
     } catch {
+      case e:UserNotFound => NotFound
       case e:DraftNotFound => NotFound
+      case e:InvalidMatchResults => BadRequest
+      case e:AssertionError => BadRequest
     }
   }
 

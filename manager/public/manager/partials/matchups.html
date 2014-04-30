@@ -1,1 +1,40 @@
-matchups.html
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th></th>
+      <th></th>
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="matchup in matchups">
+      <td
+        style="{{ swapSelected(matchup, 0) }}"
+        ng-click="swapSelect(matchup, 0)">{{ matchup.results[0].player }}
+      </td>
+      <td>
+        <input
+          type="number" min="0" max="2"
+          ng-model="matchup.results[0].wins"
+          ng-change="matchup.results[1].losses = matchup.results[0].wins" />
+      </td>
+      <td>vs</td>
+      <td
+        style="{{ swapSelected(matchup, 1) }}"
+        ng-click="swapSelect(matchup, 1)">{{ matchup.results[1].player }}
+      </td>
+      <td>
+        <input
+          type="number" min="0" max="2"
+          ng-model="matchup.results[1].wins"
+          ng-change="matchup.results[0].losses = matchup.results[1].wins" />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<a ng-show="draft.state == 'tournament'" ng-click="update()">Update</a>
+<a ng-show="draft.state == 'tournament'" ng-click="next()">Next</a>
+<a ng-show="draft.state == 'tournament'" ng-click="cancel()">Cancel</a>
+

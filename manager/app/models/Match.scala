@@ -96,11 +96,11 @@ object Match extends HomeDraftModel {
     def rounds(draft: Draft) = DB.withSession { implicit session =>
       all.filter(_.draftHash === draft.hash).map(_.round).max.run.getOrElse(0)
     }
-    def removeAllRounds(draft: Draft) = DB.withTransaction { implicit session =>
+    def removeAllRounds(draft: Draft) = DB.withSession { implicit session =>
       all.filter(_.draftHash === draft.hash).delete
       rounds(draft)
     }
-    def removeCurrentRound(draft: Draft) = DB.withTransaction { implicit session =>
+    def removeCurrentRound(draft: Draft) = DB.withSession { implicit session =>
       all.filter(_.draftHash === draft.hash).filter(_.round === rounds(draft)).delete
       rounds(draft)
     }
@@ -147,7 +147,27 @@ object Match extends HomeDraftModel {
     }
   }
 
-  implicit object RecordReadWrite extends Writes[Record] {
+  def getCurrentRound(hash :String)(user: User) = DB.withTransaction { implicit session =>
+    Data.getCurrentRound(Draft.Data.findByHash(hash)(user))
+  }
+
+  def forRound(hash :String, round: Int)(user: User) = DB.withTransaction { implicit session =>
+    Data.getRound(Draft.Data.findByHash(hash)(user), round)
+  }
+
+  def replaceCurrentRound(
+    hash: String, matches: Set[Match]
+  )(user: User) = DB.withTransaction { implicit session =>
+    Data.replaceCurrentRound(Draft.Data.findByHash(hash)(user), matches)
+  }
+
+  implicit object RecordFormat extends Format[Record] {
+    def reads(j: JsValue) = JsSuccess(Record(
+      User.findByHandle((j \ "player").as[String]).id,
+      (j \ "wins").as[Option[Int]],
+      (j \ "losses").as[Option[Int]]
+    ))
+
     def writes(o: Record) = {
       toJson(Map(
         "player" -> toJson(User.findById(o.player).handle),
@@ -157,10 +177,16 @@ object Match extends HomeDraftModel {
     }
   }
 
-  implicit object ReadWrite extends Writes[Match] {
+  implicit object ReadFormat extends Format[Match] {
+    def reads(j: JsValue) = JsSuccess(Match(
+      (j \ "draft").as[String],
+      (j \ "results").as[Set[Record]],
+      (j \ "round").as[Int]
+    ).validate)
+
     def writes(o: Match) = {
       toJson(Map(
-        "draftHash" -> toJson(o.draftHash),
+        "draft" -> toJson(o.draftHash),
         "results" -> toJson(o.results),
         "round" -> toJson(o.round)
       ))

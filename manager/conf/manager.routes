@@ -12,6 +12,7 @@ PUT     /drafts/:hash/state/next              manager.controllers.draft.DStates.
 PUT     /drafts/:hash/state/previous          manager.controllers.draft.DStates.previous(hash: String)
 PUT     /drafts/:hash/state/abort             manager.controllers.draft.DStates.abort(hash: String)
 
+GET     /drafts/:hash/matches/rounds          manager.controllers.draft.MatchUps.rounds(hash: String)
 GET     /drafts/:hash/matches/rounds/current  manager.controllers.draft.MatchUps.current(hash: String)
 GET     /drafts/:hash/matches/rounds/:round   manager.controllers.draft.MatchUps.forRound(hash: String, round: Int)
 POST    /drafts/:hash/matches/rounds/current  manager.controllers.draft.MatchUps.next(hash: String)

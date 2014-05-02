@@ -53,24 +53,38 @@ directive('matchUps', function(){
   return {
     restrict: "E",
     templateUrl: mgr_partial("matchups"),
-    scope: { draft: "=", participants: "=" },
+    scope: { draft: "=" },
     controller: function($scope, matches) {
       $scope.$watch('draft.state', function(newVal, oldVal){
         if(newVal != 'tournament') return;
-        $scope.reload();
+        matches.get({ hash: $scope.draft.hash }, function(response){
+          $scope.round = $scope.rounds = response.rounds;
+          $scope.reload();
+        });
       });
-      $scope.update = function(){
-        matches.edit(
-          { hash: $scope.draft.hash, round: 'current' }, $scope.matchups
-        );
-      }
-      $scope.next = function(){
-        $scope.update();
-      }
       $scope.reload = function(){
-        matches.query({ hash: $scope.draft.hash, round: 'current' }, function(response){
+        if($scope.round > $scope.rounds){ $scope.round = $scope.rounds; }
+        if($scope.round < 1){ $scope.round = 1; }
+        matches.query({ hash: $scope.draft.hash, round: $scope.round }, function(response){
           $scope.matchups = response;
         });
+      }
+      $scope.update = function(){
+        matches.edit(
+          { hash: $scope.draft.hash, round: 'current' }, $scope.matchups, function(response){
+          $scope.matchups = response;
+        });
+      }
+      $scope.next = function(){
+        matches.save(
+          { hash: $scope.draft.hash, round: 'current' }, $scope.matchups, function(response){
+          $scope.rounds++;
+          $scope.round = $scope.rounds;
+          $scope.matchups = response;
+        });
+      }
+      $scope.cancel = function(){
+
       }
 
       $scope.swapSelected = function(matchup, idx){
@@ -110,6 +124,25 @@ directive('matchUps', function(){
         }else{
           setSwap(matchup, idx);
         }
+      }
+    }
+  }
+}).
+directive('standings', function(){
+  return {
+    restrict: "E",
+    templateUrl: mgr_partial("standings"),
+    scope: { draft: "=" },
+    controller: function($scope, standings) {
+      $scope.$watch('draft.state', function(newVal, oldVal){
+        if(newVal != 'tournament') return;
+        $scope.reload();
+      });
+      $scope.reload = function(){
+        standings.get({ hash: $scope.draft.hash }, function(response){
+          $scope.rounds = response.rounds;
+          $scope.cumulative = response.cumulative;
+        });
       }
     }
   }

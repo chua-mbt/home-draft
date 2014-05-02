@@ -9,6 +9,13 @@
     </tr>
   </thead>
   <tbody>
+    <div>
+      <label>Round</label>
+      <input
+        type="number" min="1" max="{{ rounds }}"
+        ng-model="round"
+        ng-change="reload()" />
+    </div>
     <tr ng-repeat="matchup in matchups">
       <td
         style="{{ swapSelected(matchup, 0) }}"
@@ -34,7 +41,7 @@
     </tr>
   </tbody>
 </table>
-<a ng-show="draft.state == 'tournament'" ng-click="update()">Update</a>
-<a ng-show="draft.state == 'tournament'" ng-click="next()">Next</a>
-<a ng-show="draft.state == 'tournament'" ng-click="cancel()">Cancel</a>
+<a ng-show="draft.state == 'tournament' && (round == rounds)" ng-click="update()">Update</a>
+<a ng-show="draft.state == 'tournament' && (round == rounds)" ng-click="next()">Next</a>
+<a ng-show="draft.state == 'tournament' && (round == rounds)" ng-click="cancel()">Cancel</a>
 

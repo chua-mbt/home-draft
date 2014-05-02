@@ -29,8 +29,12 @@
   <div ng-show="pastState('drafting')">
     <match-ups
       draft="draft"
-      participants="participants"
     ></match-ups>
+  </div>
+  <div ng-show="pastState('drafting')">
+    <standings
+      draft="draft"
+    ><standings>
   </div>
   <a href="drafts">Return</a>
 </section>

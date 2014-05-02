@@ -1,40 +1,68 @@
 <section>
-  <header>Draft Manager</header>
-  <div>
-    <div ng-show="inState('upcoming')">
-      <draft-form
-        draft="draft" save="save"
-      ></draft-form>
-      <a ng-click="begin()">Begin</a>
-      <a ng-click="abort()">Abort</a>
-    </div>
-    <div ng-show="pastState('upcoming')||inState('aborted')">
-      <draft-details
-        draft="draft"
-      ></draft-details>
-    </div>
-  </div>
-  <div>
-    <participants
-      draft="draft"
-      participants="participants"
-    ></participants>
-  </div>
-  <div ng-show="pastState('upcoming')">
-    <drafting
-      draft="draft"
-      participants="participants"
-    ></drafting>
-  </div>
-  <div ng-show="pastState('drafting')">
-    <match-ups
-      draft="draft"
-    ></match-ups>
-  </div>
-  <div ng-show="pastState('drafting')">
-    <standings
-      draft="draft"
-    ><standings>
-  </div>
-  <a href="drafts">Return</a>
+
+  <header>
+    <ul class="navbar">
+      <li>Draft Manager</li>
+      <li><a href="drafts">Return</a></li>
+    </ul>  
+  </header>
+
+  <ul id="tabs">
+    <li ng-click="activetab='upcoming'" class="tab">Pre-draft</li>
+    <li ng-click="activetab='drafting'" ng-show="pastState('upcoming')" class="tab">Draft</li>
+    <li ng-click="activetab='matchups'" ng-show="pastState('drafting')" class="tab">Tournament</li>
+    <li ng-click="activetab='standings'" ng-show="pastState('drafting')" class="tab">Recap</li>
+  </ul>    
+
+  <div ng-switch on="activetab" class="tabcontent">
+    <div id="upcoming" ng-switch-when-default>  
+      <div>
+        <div ng-show="inState('upcoming')">
+          <draft-form
+            draft="$parent.draft" save="save" 
+          ></draft-form>
+        </div>  
+        <div ng-show="pastState('upcoming')||inState('aborted')">    
+          <draft-details
+            draft="$parent.draft" 
+          ></draft-details>
+        </div>
+      </div>
+      <div>
+        <participants
+          draft="$parent.draft"
+          participants="$parent.participants"
+        ></participants>
+        <div id="draft-controls">
+          <a ng-click="begin()">Begin</a>
+          <a ng-click="abort()">Abort</a>
+        </div>  
+      </div>
+    </div>  
+
+    <div id="drafting" ng-switch-when="drafting">   
+      <div>
+        <drafting
+          draft="$parent.draft"
+          participants="$parent.participants"
+        ></drafting>
+      </div>
+    </div>  
+
+    <div id="matchups" ng-switch-when="matchups">
+      <div>
+        <match-ups
+          draft="$parent.draft"
+        ></match-ups>
+      </div>
+    </div>  
+
+    <div id="standings" ng-switch-when="standings">
+      <div>
+        <standings
+          draft="$parent.draft"
+        ><standings>
+      </div>
+    </div> 
+  </div>   
 </section>

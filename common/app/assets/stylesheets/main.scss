@@ -8,16 +8,80 @@
 	padding: 0;
 	margin: 0;
 	outline: 0;
-	
+
 } 
 
 body {
+	font-family: "open sans";
 	background-color: $k02;
 } 
 
 header {
-	navbar {
+	ul.navbar {
 		@include outer-container;
+		li {
+			list-style-type: none;
+			display: inline-block;
+		}
+	}
+}
+
+section {
+	@include outer-container;
+	padding: $grid-block;
+
+	.tabcontent {
+		@include row;
+		margin-top: $grid-block;
+
+		#draft-form, #draft-details, #participants, #draft-controls {
+			@include span-grid(4);
+			&:last-child {
+				margin-right: $grid-block;
+			}	
+
+			label {
+				display: inline-block;
+				margin-top: $grid-block;
+				margin-bottom: $grid-block / 2;
+
+				font-family: "open sans bold";
+			}
+
+			select, input[type="datetime-local"] {
+				height: $grid-block * 2;
+				width: 100%;
+
+				margin-bottom: $grid-block;
+				padding: 0 ($grid-block / 2);
+
+				border: 1px $k30 solid;
+				-webkit-border-radius: 0.25em;
+
+				font-family: "open sans";
+			}
+		}
+	}
+}
+
+#tabs {
+	.tab{
+		height: $grid-block * 3;
+		padding: $grid-block;
+
+		list-style-type: none;
+		display: inline-block;
+
+		color: $k80;
+
+		font-family: "open sans light";
+		font-size: 14pt;
+
+		cursor: pointer;
+
+		&:hover {
+			color: red;
+		}
 	}
 }		
  

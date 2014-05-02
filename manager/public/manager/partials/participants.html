@@ -1,25 +1,27 @@
-<input
-    type="text"
-    ng-model="toAdd"
-    ng-keyup="toAddChanged($event)"
-    ng-show="draft.state == 'upcoming'"
-    placeholder="User Handle"/>
-<a ng-click="add(toAdd)"
-   ng-show="draft.state == 'upcoming'">Add</a>
-<table>
-  <thead>
-    <tr>
-      <th>Handle</th>
-      <th>Paid</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr ng-repeat="participant in participants | orderBy:'joined'">
-      <td>{{ participant.user }}</td>
-      <td>{{ participant.paid }}</td>
-      <td><a
-        ng-click="remove(participant.user)"
-        ng-show="draft.state == 'upcoming'">Remove</a></td>
-    </tr>
-  </tbody>
-</table>
+<div id="participants">  
+  <input
+      type="text"
+      ng-model="toAdd"
+      ng-keyup="toAddChanged($event)"
+      ng-show="draft.state == 'upcoming'"
+      placeholder="User Handle"/>
+  <a ng-click="add(toAdd)"
+     ng-show="draft.state == 'upcoming'">Add</a>
+  <table>
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Paid</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="participant in participants | orderBy:'joined'">
+        <td>{{ participant.user }}</td>
+        <td>{{ participant.paid }}</td>
+        <td><a
+          ng-click="remove(participant.user)"
+          ng-show="draft.state == 'upcoming'">Remove</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>  

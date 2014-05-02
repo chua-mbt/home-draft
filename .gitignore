@@ -16,3 +16,4 @@ dist
 todo
 common/public/components
 *.sass-cache
+npm-debug.log

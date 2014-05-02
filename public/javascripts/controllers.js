@@ -3,16 +3,27 @@ angular.module(
 ).
 controller('DraftsCtrl', ['$scope', 'drafts', 'draft_states',
 function ($scope, drafts, draft_states) {
+  $scope.offset = 0;
+  $scope.drafts = [];
   $scope.fetch = function(){
     if($scope.state == "all"){
-      drafts.query(function(response){
-        $scope.drafts = response;
+      drafts.query({
+        start: $scope.offset
+      }, function(response){
+        $scope.drafts = $scope.drafts.concat(response);
       });
     }else{
-      draft_states.query({ name: $scope.state }, function(response){
-        $scope.drafts = response;
+      draft_states.query({
+        name: $scope.state,
+        start: $scope.offset
+      }, function(response){
+        $scope.drafts = $scope.drafts.concat(response);
       });
     }
+  }
+  $scope.more = function(){
+    $scope.offset += 10;
+    $scope.fetch();
   }
 
   $scope.state = "all";

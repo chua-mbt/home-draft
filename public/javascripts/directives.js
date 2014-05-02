@@ -54,7 +54,11 @@ directive('matchUps', function(){
     restrict: "E",
     templateUrl: mgr_partial("matchups"),
     scope: { draft: "=" },
-    controller: function($scope, matches) {
+    controller: function($scope, $rootScope, matches) {
+      $scope.$watch('matchups', function(newVal, oldVal){
+        if(!newVal) return;
+        $rootScope.$broadcast("matchups_updated");
+      });
       $scope.$watch('draft.state', function(newVal, oldVal){
         if(newVal != 'tournament') return;
         matches.get({ hash: $scope.draft.hash }, function(response){
@@ -134,6 +138,9 @@ directive('standings', function(){
     templateUrl: mgr_partial("standings"),
     scope: { draft: "=" },
     controller: function($scope, standings) {
+      $scope.$on('matchups_updated', function() {
+        $scope.reload();
+      });
       $scope.$watch('draft.state', function(newVal, oldVal){
         if(newVal != 'tournament') return;
         $scope.reload();

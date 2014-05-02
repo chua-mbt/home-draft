@@ -79,7 +79,7 @@ object Draft extends HomeDraftModel {
     def isReady(draft: Draft) = DB.withSession { implicit session =>
       val participants = Participant.Data.count(draft)
       (
-        (participants > Participant.minimumNumber) &&
+        (participants >= Participant.minimumNumber) &&
         (Math.isEven(participants))
       )
     }

@@ -29,7 +29,62 @@ directive('drafting', function(){
     restrict: "E",
     templateUrl: mgr_partial("drafting"),
     scope: { draft: "=", participants: "=" },
-    controller: function($scope, draft_state, seats) {
+    controller: function($scope, $timeout, $document, draft_state, seats) {
+      var beep = document.createElement('audio');
+      beep.src = jsRoutes.manager.controllers.Assets.at("sounds/beep.mp3").url;
+
+      var PACKS = 3;
+      var PICKS = 15;
+      var TIME = 60;
+
+      $scope.drafting = {
+        pack: 1,
+        pick: 1,
+        time: TIME,
+        counter: null,
+        on: function(){ return this.counter; },
+        direction: function(){ return (this.pack%2?"LEFT":"RIGHT"); },
+        stop: function(){
+          if(this.counter){
+            $timeout.cancel(this.counter)
+            this.counter = null;
+          }
+        },
+        flipSwitch: function(){
+          if(this.counter){
+            $timeout.cancel(this.counter)
+            this.counter = null;
+          }else{
+            function tick(){
+              $scope.drafting.time--;
+              if($scope.drafting.time <=0 ){
+                $scope.drafting.forward();
+                $scope.drafting.time = TIME;
+                beep.play();
+              }
+              $scope.drafting.counter = $timeout(tick, 1000);
+            }
+            $scope.drafting.counter = $timeout(tick, 1000);
+          }
+        },
+        back: function(){
+          this.time = TIME; this.stop();
+          if(this.pick == 1 && this.pack == 1) return;
+          this.pick--; if(this.pick < 1){
+            this.pick = PICKS;
+            this.pack--;
+          }
+        },
+        forward: function(){
+          this.time = TIME; this.stop();
+          if(this.pick == PICKS && this.pack == PACKS) return;
+          this.pick++; if(this.pick > PICKS){
+            this.pick = 1;
+            this.pack++;
+          }
+        }
+      };
+
       $scope.changeState = function(newState){
         draft_state.edit(
           { hash: $scope.draft.hash, transition: newState }, {}, function(response){

@@ -1,3 +1,11 @@
+<div ng-show="draft.state == 'drafting'">
+  <div>{{ drafting.pack }}</div>
+  <div>{{ drafting.pick }}</div>
+  <div>{{ drafting.direction() }}</div>
+  <div>{{ drafting.time }}</div>
+  <a ng-click="drafting.back()">Back</a>
+  <a ng-click="drafting.forward()">Forward</a>
+</div>
 <table>
   <thead>
     <tr>
@@ -12,6 +20,14 @@
     </tr>
   </tbody>
 </table>
+<a
+  ng-show="draft.state == 'drafting'&&drafting.on()"
+  ng-click="drafting.flipSwitch()"
+>Pause</a>
+<a
+  ng-show="draft.state == 'drafting'&&!drafting.on()"
+  ng-click="drafting.flipSwitch()"
+>Start</a>
 <a ng-show="draft.state == 'drafting'" ng-click="shuffle()">Shuffle</a>
 <a ng-show="draft.state == 'drafting'" ng-click="done()">Done</a>
 <a ng-show="draft.state == 'drafting'" ng-click="cancel()">Cancel</a>

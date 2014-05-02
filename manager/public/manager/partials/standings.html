@@ -1,0 +1,37 @@
+<header>Round Standings</header>
+<table>
+  <thead>
+    <tr>
+      <th>round<th>
+      <th ng-repeat="standing in rounds.1 | orderBy:'player'">
+        {{ standing.player }}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="(round, standings) in rounds">
+      <td>{{ round }}</td>
+      <td ng-repeat="standing in standings | orderBy:'player'">
+        {{ standing.wins }}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<header>Cumulative Standings</header>
+<table>
+  <thead>
+    <tr>
+      <th>Handle</th>
+      <th>Wins</th>
+      <th>Losses</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="standing in cumulative">
+      <td>{{ standing.player }}</td>
+      <td>{{ standing.wins }}</td>
+      <td>{{ standing.losses }}</td>
+    </tr>
+  </tbody>
+</table>

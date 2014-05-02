@@ -27,11 +27,11 @@ object User extends HomeDraftModel {
   lazy val all = TableQuery[UserTable]
 
   def findByIdOpt(id: Long) = DB.withSession { implicit session =>
-    all.filter(_.id === id).firstOption
+    all.filter(_.id === id).take(1).firstOption
   }
   def findById(id: Long) = extract(findByIdOpt(id), UserNotFound())
   def findByHandleOpt(handle: String) = DB.withSession { implicit session =>
-    all.filter(_.handle === handle).firstOption
+    all.filter(_.handle === handle).take(1).firstOption
   }
   def findByHandle(
     handle: String

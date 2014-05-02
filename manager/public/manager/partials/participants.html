@@ -14,7 +14,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="participant in participants">
+    <tr ng-repeat="participant in participants | orderBy:'joined'">
       <td>{{ participant.user }}</td>
       <td>{{ participant.paid }}</td>
       <td><a

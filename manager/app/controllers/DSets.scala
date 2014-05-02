@@ -11,11 +11,11 @@ import common.models._
 
 object DSets extends Controller with Security with Pages {
   def drafts = UserAction { user => implicit request =>
-    Ok(toJson(Draft.paged(pageParams, user)))
+    Ok(toJson(Draft.paged(pageParams)(user)))
   }
 
   def draftsByState(name: String) = UserAction { user => implicit request =>
-    Ok(toJson(Draft.paged(pageParams, user, Some(name))))
+    Ok(toJson(Draft.paged(pageParams, Some(name))(user)))
   }
 
   def states = UserAction { user => implicit request =>

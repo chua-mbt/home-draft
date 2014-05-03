@@ -41,6 +41,7 @@ class ParticipantTable(tag: Tag) extends Table[Participant](tag, "participants")
 
 object Participant {
   lazy val minimumNumber = 4
+  lazy val maximumNumber = 8
 
   private[models] object Data {
     lazy val all = TableQuery[ParticipantTable]
@@ -57,7 +58,7 @@ object Participant {
     def add(
       draft: Draft, handle: String
     ) = DB.withTransaction { implicit session =>
-      if (count(draft) >= 8){ throw DraftFull() }
+      if (count(draft) >= maximumNumber){ throw DraftFull() }
       User.findByHandle(handle) match {
         case User(id, _, _, _, _) => {
           val newParticipant = Participant(draft.hash, id)

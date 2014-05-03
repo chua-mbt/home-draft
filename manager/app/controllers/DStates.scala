@@ -17,6 +17,7 @@ object DStates extends Controller with Security {
     } catch {
       case e:DraftNotFound => NotFound
       case e:DraftNotReady => BadRequest
+      case e:IncompleteRecords => BadRequest
     }
   }
 

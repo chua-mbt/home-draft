@@ -289,6 +289,12 @@ object Match extends HomeDraftModel {
     Data.makeNewRound(draft)
   }
 
+  def removeCurrentRound(hash: String)(user:User) = DB.withTransaction { implicit session =>
+    val draft = Draft.Data.findByHash(hash)(user)
+    Data.removeCurrentRound(draft)
+    Data.getCurrentRound(draft)
+  }
+
   def standings(hash: String)(user:User) = DB.withTransaction { implicit session =>
     val draft = Draft.Data.findByHash(hash)(user)
     (

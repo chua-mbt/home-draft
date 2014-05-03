@@ -85,15 +85,15 @@ directive('drafting', function(){
         }
       };
 
-      $scope.changeState = function(newState){
+      function changeState(newState){
         draft_state.edit(
           { hash: $scope.draft.hash, transition: newState }, {}, function(response){
             $scope.draft.state = response.name
           }
         );
       }
-      $scope.done = function(){ $scope.changeState("next"); }
-      $scope.cancel = function(){ $scope.changeState("previous"); }
+      $scope.done = function(){ changeState("next"); }
+      $scope.cancel = function(){ changeState("previous"); }
       $scope.shuffle = function(){
         seats.edit(
           { hash: $scope.draft.hash }, {}, function(response){
@@ -109,13 +109,13 @@ directive('matchUps', function(){
     restrict: "E",
     templateUrl: mgr_partial("matchups"),
     scope: { draft: "=" },
-    controller: function($scope, $rootScope, matches) {
+    controller: function($scope, $rootScope, matches, draft_state) {
       $scope.$watch('matchups', function(newVal, oldVal){
         if(!newVal) return;
         $rootScope.$broadcast("matchups_updated");
       });
       $scope.$watch('draft.state', function(newVal, oldVal){
-        if(newVal != 'tournament') return;
+        if(newVal != 'tournament'&&newVal != 'finished') return;
         matches.get({ hash: $scope.draft.hash }, function(response){
           $scope.round = $scope.rounds = response.rounds;
           $scope.reload();
@@ -142,8 +142,31 @@ directive('matchUps', function(){
           $scope.matchups = response;
         });
       }
+      function changeState(newState){
+        draft_state.edit(
+          { hash: $scope.draft.hash, transition: newState }, {}, function(response){
+            $scope.draft.state = response.name
+          }
+        );
+      }
       $scope.cancel = function(){
-
+        if($scope.rounds == 1){
+          changeState("previous");
+        }else{
+          matches.delete(
+            { hash: $scope.draft.hash, round: 'current' }, function(response){
+            $scope.rounds--;
+            $scope.round = $scope.rounds;
+            $scope.matchups = response;
+          });
+        }
+      }
+      $scope.finish = function(){
+        matches.edit(
+          { hash: $scope.draft.hash, round: 'current' }, $scope.matchups, function(response){
+          $scope.matchups = response;
+          changeState("next");
+        });
       }
 
       $scope.swapSelected = function(matchup, idx){
@@ -197,7 +220,7 @@ directive('standings', function(){
         $scope.reload();
       });
       $scope.$watch('draft.state', function(newVal, oldVal){
-        if(newVal != 'tournament') return;
+        if(newVal != 'tournament'&&newVal != 'finished') return;
         $scope.reload();
       });
       $scope.reload = function(){

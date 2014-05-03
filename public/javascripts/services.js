@@ -26,7 +26,8 @@ function ($resource) {
   return $resource('/manager/drafts/:hash/matches/rounds/:round', null,
     {
       'edit': { method:'PUT', isArray:true },
-      'save': { method:'POST', isArray:true }
+      'save': { method:'POST', isArray:true },
+      'delete': { method:'DELETE', isArray:true }
     });
 }]).
 factory('standings', ['$resource',

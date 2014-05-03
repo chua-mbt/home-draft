@@ -62,7 +62,7 @@ object MatchUps extends Controller with Security {
 
   def cancel(hash: String) = UserAction { user => implicit request =>
     try {
-      Ok(toJson("OK"))
+      Ok(toJson(Match.removeCurrentRound(hash)(user)))
     } catch {
       case e:DraftNotFound => NotFound
     }
